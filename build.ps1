@@ -32,8 +32,10 @@ if (-not $NoTests) {
         & ".\build\$t.exe"
         if ($LASTEXITCODE) { throw "$t failed" }
     }
-    Write-Host "--- test_docs (examples in docs/CUSTOMIZE.md)"
-    & .\build\test_docs.exe docs\CUSTOMIZE.md
-    if ($LASTEXITCODE) { throw 'test_docs failed' }
+    foreach ($doc in 'docs\CUSTOMIZE.md', 'docs\CUSTOMIZE.ru.md') {
+        Write-Host "--- test_docs ($doc)"
+        & .\build\test_docs.exe $doc
+        if ($LASTEXITCODE) { throw "test_docs failed for $doc" }
+    }
 }
 Write-Host "OK: build\QuasarMonitor.exe  ($([int]((Get-Item build\QuasarMonitor.exe).Length/1KB)) KB)"

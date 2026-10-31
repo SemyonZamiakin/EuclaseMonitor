@@ -2,21 +2,114 @@
 
 # Quasar Monitor
 
+**Крошечный системный монитор в трее, который выглядит так, как хотите вы.**
 **A tiny system monitor that lives in your tray and looks the way *you* want.**
-CPU · GPU · RAM · network · top processes, in a skinnable overlay, for about 5 MB of memory.
 
 ![platform](https://img.shields.io/badge/Windows-10%20%7C%2011-4C8DFF)
 ![size](https://img.shields.io/badge/exe-~400%20KB-5FD18A)
 ![deps](https://img.shields.io/badge/dependencies-none-8B6CFF)
 ![license](https://img.shields.io/badge/license-MIT-lightgrey)
 
-<img src="docs/img/gallery.png" width="860" alt="Three bundled skins with live data">
+<img src="docs/img/gallery.png" width="860" alt="Три встроенных скина на живых данных / Three bundled skins with live data">
 
-<sub>The three bundled skins, rendered with live data from the author's PC (i9-9900K, GTX 1080 Ti).</sub>
+<sub>Три встроенных скина на живых данных автора (i9-9900K, GTX 1080 Ti). / The three bundled skins with live data from the author's PC.</sub>
+
+**[🇷🇺 Русский](#-русский)** · **[🇬🇧 English](#-english)**
 
 </div>
 
 ---
+
+# 🇷🇺 Русский
+
+**CPU · GPU · память · сеть · самые активные программы** в настраиваемом оверлее, примерно за 5 МБ оперативной памяти.
+
+## Зачем
+
+Диспетчер задач тяжёлый, а классические мониторы железа перегружены, выглядят как из прошлого века, требуют плагинов или показывают рекламу.
+Quasar Monitor это один `.exe` на ~400 КБ: без установщика, без .NET, без аккаунтов, без рекламы, без телеметрии.
+Он показывает самое важное, там, где вам удобно, в любом виде, который можно описать текстовым файлом.
+
+## Возможности
+
+- **Живой оверлей** (скруглённый, полупрозрачный, «прозрачный для мыши») или окно, которое можно перетащить. Горячая клавиша показать/скрыть: `Ctrl+Alt+F10`.
+- **Метрики:** CPU (общая и по ядрам), частота, память, видеокарта NVIDIA (нагрузка, температура, частоты, видеопамять, мощность, вентилятор), скорость сети, диски, самые активные программы, время. [Полный список](docs/METRICS.md).
+- **Скины, которые правятся в Блокноте:** фон (цвет, градиент, **ваша собственная картинка**), шрифты, цвета, расположение, кольца, полосы, графики, столбики по ядрам, условия («показывать только когда видеокарта загружена»). **Сохранили файл, и изменения видны сразу.** Сломанный файл не ломает оверлей.
+- **[Руководство по кастомизации](docs/CUSTOMIZE.ru.md):** пошаговый туториал, все примеры в нём проверяются автоматически.
+- **Экспорт метрик** (по умолчанию выключен) в виде JSON по локальному HTTP, чтобы **ESP32 / SPI-дисплей**, скрипт или другая панель показывали данные вашего ПК. [Подробнее](docs/EXPORT.md).
+- Меню в трее: смена скинов, режим «клик сквозь», перезагрузка, **«Customize this skin...»** (создаёт вашу копию скина и открывает её), автозапуск с Windows.
+- Открытый код, лицензия MIT.
+
+## Быстрый старт
+
+1. Скачайте `QuasarMonitor-<версия>.zip` в разделе [Releases](../../releases) и распакуйте куда угодно.
+2. Запустите `QuasarMonitor.exe`. Оверлей появится в правом верхнем углу, а в трее будет значок с меню.
+3. Трей → **Skins** (скины): `glass`, `minimal` или `aurora`. Трей → **Customize this skin...**, чтобы сделать свой.
+
+Windows может предупредить о неизвестном издателе: exe пока не подписан цифровой подписью. Нажмите *Подробнее → Выполнить в любом случае*,
+сверьте SHA-256 со страницей релиза или соберите программу сами (см. ниже).
+
+## Сделайте под себя
+
+```jsonc
+// my-skin/skin.json: весь оверлей это один этот файл
+{
+  "name": "Mine",
+  "window": { "width": 220, "height": 70, "anchor": "top-left", "margin": [20, 20] },
+  "background": { "image": "wallpaper.jpg", "imageOpacity": 0.5, "color": "#0b0e1c", "radius": 16 },
+  "widgets": [
+    { "type": "text", "x": 14, "y": 10, "text": "CPU {cpu.load:0}%   GPU {gpu.temp:0}°C", "color": "#ffffff" },
+    { "type": "bar",  "x": 14, "y": 42, "w": 192, "h": 8, "radius": 4, "value": "cpu.load", "color": "#5b8cff",
+      "colors": [ { "above": 90, "color": "#ff5d6c" } ] }
+  ]
+}
+```
+
+Фон меняется заменой одной картинки или одного цвета. Остальное (позиции, шрифты, какие числа показывать, когда они появляются)
+настраивается так же просто. Смотрите **[docs/CUSTOMIZE.ru.md](docs/CUSTOMIZE.ru.md)**.
+
+## Сколько занимает
+
+Замерено на ПК автора (Windows 11, i9-9900K 16 потоков, 4K, GTX 1080 Ti), настоящий exe, обновление раз в секунду,
+после 45 секунд работы (`tools/measure.ps1` воспроизводит замер):
+
+| Скин | Рабочий набор | Приватный рабочий набор (колонка «Память» в Диспетчере задач) | Процессор |
+|---|---|---|---|
+| `glass` | 5,2 МБ | 2,2 МБ | 1,2% одного ядра (0,08% всего процессора) |
+| `aurora` (картинка, графики, 43 виджета) | 7,7 МБ | 3,2 МБ | 1,35% одного ядра |
+
+Сам exe весит 404 КБ. Он резервирует около 18 МБ адресного пространства (в основном не занятого физически), это то, что показывает «Private bytes».
+Пока оверлей скрыт, программа опрашивает данные раз в 3 секунды и возвращает память системе.
+
+## Честные ограничения (версия 0.1)
+
+- **Температуры процессора нет.** В Windows нет пользовательского API для неё на большинстве ПК, нужен драйвер ядра (например, PawnIO). Это в планах как опциональная функция, пока метрика `cpu.temp` равна `n/a`.
+- **Метрики видеокарты только для NVIDIA** (через NVML из драйвера). AMD и Intel пока не поддерживаются.
+- `cpu.clock` это то, что отдаёт Windows, часто базовая частота, а не текущая с разгоном.
+- Оверлей виден поверх игр в оконном и безрамочном режимах, но **не поверх игр в эксклюзивном полноэкранном режиме**.
+- У экспорта метрик нет пароля: держите его на `localhost`, пока не доверяете своей сети. В сетевом режиме список программ не отправляется никогда.
+- Проверено на одном ПК (Windows 11, NVIDIA). Отчёты с других конфигураций очень приветствуются.
+
+## Сборка
+
+Нужны Windows и [MSYS2](https://www.msys2.org) с `g++` для mingw64 (`pacman -S mingw-w64-x86_64-gcc`). Больше ничего.
+
+```powershell
+./build.ps1          # собирает build\QuasarMonitor.exe и запускает все тесты
+./package.ps1        # дополнительно делает dist\QuasarMonitor-<версия>.zip
+```
+
+Подробнее: [архитектура и тесты](docs/ARCHITECTURE.md) (на английском).
+
+## Лицензия
+
+MIT, см. [LICENSE](LICENSE). Сделано Quasar Soft.
+
+---
+
+# 🇬🇧 English
+
+**CPU · GPU · RAM · network · top processes** in a skinnable overlay, for about 5 MB of memory.
 
 ## Why
 
@@ -29,7 +122,7 @@ It shows what matters, where you want it, in any look you can describe in a text
 - **Live overlay** (rounded, translucent, click-through) or a draggable window. Hotkey to show/hide (`Ctrl+Alt+F10`).
 - **Metrics:** CPU total and per core, clock, RAM, GPU load / temperature / clocks / VRAM / power / fan (NVIDIA), network speed, disks, busiest programs, time. [Full list](docs/METRICS.md).
 - **Skins you can edit in Notepad:** backgrounds (colour, gradient, **your own picture**), fonts, colours, layout, rings, bars, graphs, per-core bars, conditions ("show only when the GPU is busy"). **Saved changes appear instantly**, a broken file never breaks the overlay.
-- **[The customization guide](docs/CUSTOMIZE.md):** a step-by-step tutorial where every example is tested automatically.
+- **[The customization guide](docs/CUSTOMIZE.md)** (also [in Russian](docs/CUSTOMIZE.ru.md)): a step-by-step tutorial where every example is tested automatically.
 - **Metrics export** (off by default) as JSON over local HTTP, so an **ESP32 / SPI display**, a script or another panel can show your PC's numbers. [Details](docs/EXPORT.md).
 - Tray menu: switch skins, click-through on/off, reload, **"Customize this skin..."** (makes your own copy and opens it), start with Windows.
 - Open source, MIT.
@@ -94,15 +187,6 @@ Requires Windows and [MSYS2](https://www.msys2.org) mingw64 `g++` (`pacman -S mi
 ```
 
 More: [Architecture and tests](docs/ARCHITECTURE.md).
-
-<details>
-<summary><b>Коротко по-русски</b></summary>
-
-**Quasar Monitor** живёт в трее, занимает около 5 МБ памяти и показывает загрузку CPU/GPU, температуру видеокарты, память, сеть и самые активные программы в красивом оверлее. Вид полностью настраивается текстовым файлом `skin.json`: фон (цвет, градиент или своя картинка), шрифты, цвета, расположение, условия показа. Сохранили файл, и оверлей обновился сразу. Подробный туториал: [docs/CUSTOMIZE.md](docs/CUSTOMIZE.md) (на английском, все примеры проверяются тестами).
-
-Запуск: распакуйте архив из Releases, запустите `QuasarMonitor.exe`, меню в трее: «Skins» (скины), «Customize this skin...» (сделать свою копию и открыть её), «Click-through» (чтобы перетащить оверлей мышью).
-Ограничения: температуры процессора пока нет (нужен драйвер ядра), метрики видеокарты только для NVIDIA, поверх игр в эксклюзивном полноэкранном режиме оверлей не виден.
-</details>
 
 ## License
 

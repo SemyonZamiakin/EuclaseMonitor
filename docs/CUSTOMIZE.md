@@ -6,6 +6,8 @@ overlay keeps showing the previous version and the tray tells you what is wrong.
 
 Every code block in this guide is tested automatically against the real skin loader, so you can copy it as it is.
 
+[Русская версия](CUSTOMIZE.ru.md)
+
 ---
 
 ## 1. Your first change in 60 seconds
