@@ -403,10 +403,21 @@ struct App {
         }
         for (auto& w : fresh.warnings) logLine("skin '" + ref->id + "': " + w);
         logLine("skin '" + ref->id + "' loaded: " + std::to_string(fresh.widgets.size()) + " widgets, " + std::to_string(fresh.warnings.size()) + " warnings");
+        // Keep the graph history when the same skin is saved again (same graph at the same position), so editing a skin
+        // does not blank the graphs; switching to another skin starts clean.
+        std::vector<std::vector<float>> oldHist;
+        if (haveSkin && skinId == ref->id) for (const Widget& w : skin.widgets) oldHist.push_back(w.type == WType::Graph ? w.hist : std::vector<float>());
         skin = std::move(fresh);
         skinId = ref->id; cfg.skin = ref->id; haveSkin = true;
         renderer->clearCaches();
-        for (Widget& w : skin.widgets) w.hist.clear();
+        for (size_t i = 0; i < skin.widgets.size(); ++i) {
+            Widget& w = skin.widgets[i];
+            w.hist.clear();
+            if (i < oldHist.size() && w.type == WType::Graph && !oldHist[i].empty()) {
+                w.hist = oldHist[i];
+                while ((int)w.hist.size() > w.history) w.hist.erase(w.hist.begin());
+            }
+        }
         updateSkinState(skin, metrics);
         applyClickThrough(cfg.clickThrough >= 0 ? cfg.clickThrough == 1 : skin.clickThrough);
         watcher.start(ref->dir, ctrl);
