@@ -1,0 +1,58 @@
+{
+  // Quasar Glass: three rings, network and a CPU history strip.
+  // Everything here is plain text: edit, save, and the overlay updates by itself.
+  "name": "Quasar Glass",
+  "author": "Quasar Soft",
+
+  // Colours used below as $name. Change them here to re-theme the whole skin.
+  "vars": {
+    "text":   "#eef1fb",
+    "muted":  "#8f98b3",
+    "accent": "#5b8cff",
+    "warn":   "#ffb454",
+    "danger": "#ff5d6c"
+  },
+
+  "window": { "width": 340, "height": 218, "anchor": "top-right", "margin": [24, 24], "opacity": 1, "clickThrough": true },
+  "update": 1000,
+
+  "background": {
+    "gradient": { "from": "#101733ea", "to": "#1a1236ea", "angle": 60 },
+    "radius": 20,
+    "border": { "color": "#ffffff26", "width": 1 }
+  },
+
+  "fonts": {
+    "main":  { "family": "Segoe UI", "size": 12 },
+    "label": { "family": "Segoe UI", "size": 11, "bold": true },
+    "big":   { "family": "Segoe UI", "size": 24, "bold": true }
+  },
+
+  "widgets": [
+    // --- CPU ring ---
+    { "type": "ring", "x": 20, "y": 18, "w": 84, "h": 84, "thickness": 9, "value": "cpu.load", "color": "$accent",
+      "colors": [ { "above": 70, "color": "$warn" }, { "above": 90, "color": "$danger" } ] },
+    { "type": "text", "x": 20, "y": 18, "w": 84, "h": 84, "align": "center", "valign": "middle", "font": "big", "color": "$text", "text": "{cpu.load:0}" },
+    { "type": "text", "x": 20, "y": 106, "w": 84, "align": "center", "font": "label", "color": "$muted", "text": "CPU" },
+
+    // --- GPU ring ---
+    { "type": "ring", "x": 128, "y": 18, "w": 84, "h": 84, "thickness": 9, "value": "gpu.load", "color": "#38d9f0",
+      "colors": [ { "above": 85, "color": "$warn" }, { "above": 97, "color": "$danger" } ] },
+    { "type": "text", "x": 128, "y": 18, "w": 84, "h": 84, "align": "center", "valign": "middle", "font": "big", "color": "$text", "text": "{gpu.load:0}" },
+    { "type": "text", "x": 128, "y": 106, "w": 84, "align": "center", "font": "label", "color": "$muted", "text": "GPU  {gpu.temp:0}°C" },
+
+    // --- RAM ring ---
+    { "type": "ring", "x": 236, "y": 18, "w": 84, "h": 84, "thickness": 9, "value": "ram.used_pct", "color": "#9d7bff",
+      "colors": [ { "above": 85, "color": "$warn" }, { "above": 95, "color": "$danger" } ] },
+    { "type": "text", "x": 236, "y": 18, "w": 84, "h": 84, "align": "center", "valign": "middle", "font": "big", "color": "$text", "text": "{ram.used_pct:0}" },
+    { "type": "text", "x": 236, "y": 106, "w": 84, "align": "center", "font": "label", "color": "$muted", "text": "RAM  {ram.used_gb:1} GB" },
+
+    // --- network ---
+    { "type": "text", "x": 20,  "y": 140, "w": 150, "font": "main", "color": "$text", "text": "↓ {net.down:rate}" },
+    { "type": "text", "x": 170, "y": 140, "w": 150, "font": "main", "color": "$text", "align": "right", "text": "↑ {net.up:rate}" },
+
+    // --- CPU history ---
+    { "type": "graph", "x": 20, "y": 168, "w": 300, "h": 36, "value": "cpu.load", "history": 60, "color": "$accent",
+      "track": "#ffffff0d", "radius": 8, "colors": [ { "above": 80, "color": "$danger" } ] }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  // Aurora: the "full dashboard". Shows how to use a background image, graphs,
+  // a repeat block (one bar per CPU core) and the list of the busiest processes.
+  "name": "Quasar Aurora",
+  "author": "Quasar Soft",
+
+  "vars": { "text": "#eef1fb", "muted": "#9aa3c0", "cpu": "#7aa2ff", "gpu": "#38d9f0", "danger": "#ff5d6c" },
+
+  "window": { "width": 420, "height": 330, "anchor": "top-right", "margin": [24, 24], "clickThrough": true },
+  "update": 1000,
+
+  "background": {
+    "color": "#0d1226",
+    "image": "bg.png",            // replace bg.png with your own picture (png / jpg), same folder
+    "fit": "cover",               // cover | contain | stretch
+    "imageOpacity": 0.5,
+    "radius": 22,
+    "border": { "color": "#ffffff2e", "width": 1 }
+  },
+
+  "fonts": {
+    "main":  { "family": "Segoe UI", "size": 12 },
+    "small": { "family": "Segoe UI", "size": 10.5 },
+    "label": { "family": "Segoe UI", "size": 12, "bold": true },
+    "clock": { "family": "Segoe UI", "size": 22, "bold": true }
+  },
+
+  "widgets": [
+    // --- header ---
+    { "type": "text", "x": 16, "y": 14, "w": 300, "font": "small", "color": "$muted", "text": "{cpu.name}" },
+    { "type": "text", "x": 260, "y": 8, "w": 144, "align": "right", "font": "clock", "color": "$text", "text": "{time.hm}" },
+
+    // --- CPU and GPU history ---
+    { "type": "text", "x": 16,  "y": 38, "w": 188, "font": "label", "color": "$cpu", "text": "CPU  {cpu.load:0}%   {cpu.clock:mhz}" },
+    { "type": "graph", "x": 16, "y": 60, "w": 188, "h": 56, "value": "cpu.load", "history": 60, "color": "$cpu", "track": "#00000040", "radius": 10,
+      "colors": [ { "above": 85, "color": "$danger" } ] },
+    { "type": "text", "x": 216, "y": 38, "w": 188, "font": "label", "color": "$gpu", "text": "GPU  {gpu.load:0}%   {gpu.temp:0}°C" },
+    { "type": "graph", "x": 216, "y": 60, "w": 188, "h": 56, "value": "gpu.load", "history": 60, "color": "$gpu", "track": "#00000040", "radius": 10,
+      "colors": [ { "above": 90, "color": "$danger" } ] },
+
+    // --- one vertical bar per CPU core: a "repeat" block ($i is 0..count-1, $i1 is 1..count) ---
+    { "type": "text", "x": 16, "y": 124, "font": "small", "color": "$muted", "text": "CORES" },
+    { "type": "repeat", "count": 16, "x": 16, "y": 142, "dx": 14,
+      "template": { "type": "bar", "w": 10, "h": 36, "vertical": true, "radius": 4, "value": "cpu.core$i.load", "color": "$cpu", "track": "#00000040",
+                    "colors": [ { "above": 85, "color": "$danger" } ] } },
+
+    // --- memory ---
+    { "type": "text", "x": 250, "y": 124, "font": "small", "color": "$muted", "text": "VRAM  {gpu.vram_used_gb:1} / {gpu.vram_total_gb:0} GB" },
+    { "type": "bar", "x": 250, "y": 144, "w": 154, "h": 8, "radius": 4, "value": "gpu.vram_used_pct", "color": "$gpu", "track": "#00000040" },
+    { "type": "text", "x": 250, "y": 158, "font": "small", "color": "$muted", "text": "RAM  {ram.used_gb:1} / {ram.total_gb:0} GB" },
+    { "type": "bar", "x": 250, "y": 178, "w": 154, "h": 8, "radius": 4, "value": "ram.used_pct", "color": "#9d7bff", "track": "#00000040" },
+
+    // --- network ---
+    { "type": "text", "x": 16,  "y": 196, "w": 190, "font": "main", "color": "$text", "text": "↓ {net.down:rate}" },
+    { "type": "text", "x": 214, "y": 196, "w": 190, "font": "main", "color": "$text", "align": "right", "text": "↑ {net.up:rate}" },
+    { "type": "line", "x": 16, "y": 222, "x2": 404, "y2": 222, "color": "#ffffff1f", "lineWidth": 1 },
+
+    // --- busiest processes (grouped by program name) ---
+    { "type": "text", "x": 16, "y": 230, "font": "small", "color": "$muted", "text": "TOP PROCESSES" },
+    { "type": "repeat", "count": 4, "x": 0, "y": 250, "dy": 18,
+      "template": { "type": "group", "children": [
+        { "type": "text", "x": 16,  "w": 200, "h": 16, "font": "main", "color": "$text", "text": "{proc.cpu$i1.name}" },
+        { "type": "text", "x": 240, "w": 70,  "h": 16, "font": "main", "color": "#c9d6ff",  "align": "right", "text": "{proc.cpu$i1.cpu:1}%" },
+        { "type": "text", "x": 320, "w": 84,  "h": 16, "font": "main", "color": "#aab4d4", "align": "right", "text": "{proc.cpu$i1.mem:0} MB" }
+      ] } }
+  ]
+}
