@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+- Graph history is kept when the same skin is saved again (hot reload no longer clears graphs).
+- Bilingual README (Russian, English), Russian customization guide, CI, security policy, contributing guide.
+
 ## 0.1.0
 - First release: tray app with a skinnable GDI+ overlay (click-through or draggable), hotkey, hot reload of skins.
 - Metrics: CPU (total, per core, clock), RAM, GPU via NVML (NVIDIA), network, disks, busiest programs, time.

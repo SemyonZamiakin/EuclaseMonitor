@@ -2,25 +2,26 @@
 
 # Quasar Monitor
 
-**Крошечный системный монитор в трее, который выглядит так, как хотите вы.**
-**A tiny system monitor that lives in your tray and looks the way *you* want.**
+**Системный монитор для Windows: трей, оверлей, скины в JSON.**
+**System monitor for Windows: tray, overlay, JSON skins.**
 
-![platform](https://img.shields.io/badge/Windows-10%20%7C%2011-4C8DFF)
-![size](https://img.shields.io/badge/exe-~400%20KB-5FD18A)
-![deps](https://img.shields.io/badge/dependencies-none-8B6CFF)
-![license](https://img.shields.io/badge/license-MIT-lightgrey)
+![platform](https://img.shields.io/badge/Windows-10%20%7C%2011-informational)
+![size](https://img.shields.io/badge/exe-~400%20KB-informational)
+![deps](https://img.shields.io/badge/dependencies-none-informational)
+![license](https://img.shields.io/badge/license-MIT-blue)
+[![CI](https://github.com/SemyonZamiakin/QuasarMonitor/actions/workflows/ci.yml/badge.svg)](https://github.com/SemyonZamiakin/QuasarMonitor/actions/workflows/ci.yml)
 
 <img src="docs/img/gallery.png" width="860" alt="Три встроенных скина на живых данных / Three bundled skins with live data">
 
 <sub>Три встроенных скина на живых данных автора (i9-9900K, GTX 1080 Ti). / The three bundled skins with live data from the author's PC.</sub>
 
-**[🇷🇺 Русский](#-русский)** · **[🇬🇧 English](#-english)**
+**[Русский](#русский)** | **[English](#english)**
 
 </div>
 
 ---
 
-# 🇷🇺 Русский
+# Русский
 
 **CPU · GPU · память · сеть · самые активные программы** в настраиваемом оверлее, примерно за 5 МБ оперативной памяти.
 
@@ -103,11 +104,11 @@ Windows может предупредить о неизвестном издат
 
 ## Лицензия
 
-MIT, см. [LICENSE](LICENSE). Сделано Quasar Soft.
+MIT, см. [LICENSE](LICENSE). Участие: [CONTRIBUTING.md](CONTRIBUTING.md). Безопасность: [SECURITY.md](SECURITY.md).
 
 ---
 
-# 🇬🇧 English
+# English
 
 **CPU · GPU · RAM · network · top processes** in a skinnable overlay, for about 5 MB of memory.
 
@@ -190,4 +191,4 @@ More: [Architecture and tests](docs/ARCHITECTURE.md).
 
 ## License
 
-MIT. See [LICENSE](LICENSE). Made by Quasar Soft.
+MIT. See [LICENSE](LICENSE). Contributing: [CONTRIBUTING.md](CONTRIBUTING.md). Security: [SECURITY.md](SECURITY.md).
