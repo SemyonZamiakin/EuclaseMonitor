@@ -55,4 +55,4 @@ Measured numbers are in the [README](../README.md#footprint).
 - CPU temperature (needs a signed kernel driver such as PawnIO to read the sensors; opt-in)
 - AMD / Intel GPU metrics
 - A skin gallery and an in-app skin picker with previews
-- An example ESP32 firmware verified on real hardware with QuasarUI
+- An example ESP32 firmware verified on real hardware with EuclaseUI

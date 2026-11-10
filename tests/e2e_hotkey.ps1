@@ -1,7 +1,7 @@
 # The global hotkey really toggles the overlay (synthesises Ctrl+Alt+F10; only runs if the app registered it).
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
-$log = "$env:APPDATA\QuasarMonitor\monitor.log"
+$log = "$env:APPDATA\EuclaseMonitor\monitor.log"
 Add-Type @"
 using System; using System.Text; using System.Runtime.InteropServices;
 public class HK {
@@ -11,17 +11,17 @@ public class HK {
  [DllImport("user32.dll", CharSet=CharSet.Unicode)] static extern int GetClassNameW(IntPtr h, StringBuilder sb, int n);
  [DllImport("user32.dll")] static extern bool IsWindowVisible(IntPtr h);
  [DllImport("user32.dll")] public static extern void keybd_event(byte vk, byte scan, uint flags, UIntPtr extra);
- public static bool OverlayVisible(uint pid) { bool v = false; EnumWindows((h, x) => { uint p; GetWindowThreadProcessId(h, out p); if (p == pid) { var sb = new StringBuilder(64); GetClassNameW(h, sb, 64); if (sb.ToString() == "QuasarMonitor.Overlay") v = IsWindowVisible(h); } return true; }, IntPtr.Zero); return v; }
+ public static bool OverlayVisible(uint pid) { bool v = false; EnumWindows((h, x) => { uint p; GetWindowThreadProcessId(h, out p); if (p == pid) { var sb = new StringBuilder(64); GetClassNameW(h, sb, 64); if (sb.ToString() == "EuclaseMonitor.Overlay") v = IsWindowVisible(h); } return true; }, IntPtr.Zero); return v; }
  public static void Chord() { keybd_event(0x11,0,0,UIntPtr.Zero); keybd_event(0x12,0,0,UIntPtr.Zero); keybd_event(0x79,0,0,UIntPtr.Zero); System.Threading.Thread.Sleep(80); keybd_event(0x79,0,2,UIntPtr.Zero); keybd_event(0x12,0,2,UIntPtr.Zero); keybd_event(0x11,0,2,UIntPtr.Zero); }
 }
 "@
-$cfgPath = "$env:APPDATA\QuasarMonitor\settings.json"
+$cfgPath = "$env:APPDATA\EuclaseMonitor\settings.json"
 $backup = if (Test-Path $cfgPath) { Get-Content $cfgPath -Raw } else { $null }
-Get-Process QuasarMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-Process EuclaseMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep 1
 Set-Content $cfgPath '{ "skin": "minimal", "visible": true, "hotkey": "ctrl+alt+f10" }' -Encoding UTF8
 $before = (Get-Item $log -ErrorAction SilentlyContinue).Length
-$p = Start-Process "$root\build\QuasarMonitor.exe" -PassThru
+$p = Start-Process "$root\build\EuclaseMonitor.exe" -PassThru
 $fail = 0
 try {
     Start-Sleep 4

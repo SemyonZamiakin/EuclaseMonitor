@@ -1,4 +1,4 @@
-# Contributing to Quasar Monitor
+# Contributing to Euclase Monitor
 
 Thanks for your interest. Bug reports, hardware test reports and focused pull requests are welcome.
 
@@ -10,7 +10,7 @@ Thanks for your interest. Bug reports, hardware test reports and focused pull re
 ## Build and test
 
 ```
-./build.ps1        # builds build\QuasarMonitor.exe and runs all tests
+./build.ps1        # builds build\EuclaseMonitor.exe and runs all tests
 ```
 
 Requirements: Windows, MSYS2 mingw64 `g++`. Documentation examples in `docs/CUSTOMIZE*.md` are compiled and run by `tests/test_docs.cpp`, so a changed example must stay valid.

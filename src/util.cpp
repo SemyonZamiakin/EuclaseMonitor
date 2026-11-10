@@ -67,7 +67,7 @@ std::wstring exeDir() {
 std::wstring appDataDir() {
     wchar_t buf[MAX_PATH];
     std::wstring base = SUCCEEDED(SHGetFolderPathW(nullptr, CSIDL_APPDATA, nullptr, 0, buf)) ? buf : exeDir();
-    std::wstring dir = base + L"\\QuasarMonitor";
+    std::wstring dir = base + L"\\EuclaseMonitor";
     CreateDirectoryW(dir.c_str(), nullptr);
     return dir;
 }

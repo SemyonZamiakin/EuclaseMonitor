@@ -1,6 +1,6 @@
 # Starts the app, lets it run, and reports real resource use (so the "5 MB" claim is a measurement, not a promise).
-param([string]$Exe = "$PSScriptRoot\..\build\QuasarMonitor.exe", [int]$Seconds = 40, [string]$Skin = 'glass')
-Get-Process QuasarMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
+param([string]$Exe = "$PSScriptRoot\..\build\EuclaseMonitor.exe", [int]$Seconds = 40, [string]$Skin = 'glass')
+Get-Process EuclaseMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
 $p = Start-Process $Exe -ArgumentList '--skin', $Skin -PassThru
 Start-Sleep 8
 $p.Refresh()

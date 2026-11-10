@@ -1,4 +1,4 @@
-# Сделайте под себя: руководство по кастомизации Quasar Monitor
+# Сделайте под себя: руководство по кастомизации Euclase Monitor
 
 Всё, что вы видите в оверлее (фон, цвета, шрифты, расположение, какие числа показаны), берётся из **одного текстового файла**:
 `skin.json`. Откройте его любым редактором, сохраните, и оверлей обновится **мгновенно**, без перезапуска. Если вы ошиблись,
@@ -13,7 +13,7 @@
 ## 1. Первое изменение за минуту
 
 1. Правый клик по значку в трее → **Customize this skin...**
-   Quasar Monitor скопирует скин в вашу папку (`%APPDATA%\QuasarMonitor\skins\<имя>-mine`), переключится на копию
+   Euclase Monitor скопирует скин в вашу папку (`%APPDATA%\EuclaseMonitor\skins\<имя>-mine`), переключится на копию
    и откроет `skin.json`. Оригинальные скины не изменяются никогда.
 2. Найдите `"background"` и поменяйте цвет, например `"color": "#1b2a49cc"`.
 3. Сохраните файл (Ctrl+S). Через мгновение оверлей изменится.
@@ -90,7 +90,7 @@ my-skin/
   "name": "Backgrounds",
   "window": { "width": 300, "height": 100 },
   "background": {
-    "gradient": { "from": "#101733ee", "to": "#2a1245ee", "angle": 60 },
+    "gradient": { "from": "#0f2933ee", "to": "#2a1245ee", "angle": 60 },
     "radius": 24,
     "border": { "color": "#ffffff30", "width": 1 }
   },
@@ -106,7 +106,7 @@ my-skin/
 - `"radius"`: скругление углов. `0` = острые углы.
 
 **Чтобы поставить свои обои:** скопируйте скин (раздел 1), положите картинку в папку и впишите её имя в `"image"`.
-Картинку можно перезаписывать, пока Quasar Monitor работает: она подхватывается при сохранении.
+Картинку можно перезаписывать, пока Euclase Monitor работает: она подхватывается при сохранении.
 
 ---
 
@@ -117,7 +117,7 @@ my-skin/
 ```json skin
 {
   "name": "Palette",
-  "vars": { "text": "#eef1fb", "accent": "#5b8cff", "danger": "#ff5d6c" },
+  "vars": { "text": "#f8fafc", "accent": "#2dd4bf", "danger": "#ff5d6c" },
   "window": { "width": 220, "height": 70 },
   "widgets": [
     { "type": "text", "x": 12, "y": 10, "text": "CPU {cpu.load:0}%", "color": "$text" },
@@ -144,7 +144,7 @@ my-skin/
   "window": { "width": 200, "height": 70 },
   "widgets": [
     { "type": "text", "x": 12, "y": 8,  "font": "big",  "text": "{cpu.load:0}%" },
-    { "type": "text", "x": 12, "y": 48, "font": "main", "text": "{cpu.name}", "color": "#9aa3c0" }
+    { "type": "text", "x": 12, "y": 48, "font": "main", "text": "{cpu.name}", "color": "#8fb3bc" }
   ]
 }
 ```
@@ -163,7 +163,7 @@ my-skin/
 
 ```json widgets
 [
-  { "type": "text", "x": 10, "y": 10, "text": "GPU {gpu.load:0}%  {gpu.temp:0}°C  {gpu.clock:mhz}", "color": "#38d9f0" },
+  { "type": "text", "x": 10, "y": 10, "text": "GPU {gpu.load:0}%  {gpu.temp:0}°C  {gpu.clock:mhz}", "color": "#99f6e4" },
   { "type": "text", "x": 10, "y": 34, "w": 180, "align": "right", "text": "↓ {net.down:rate}" },
   { "type": "text", "x": 0, "y": 0, "w": 200, "h": 100, "align": "center", "valign": "middle", "text": "centred in a box" }
 ]
@@ -178,8 +178,8 @@ my-skin/
 ```json widgets
 [
   { "type": "bar", "x": 10, "y": 10, "w": 180, "h": 10, "radius": 5, "value": "ram.used_pct", "min": 0, "max": 100,
-    "color": "#9d7bff", "colorTo": "#38d9f0", "track": "#ffffff1a" },
-  { "type": "bar", "x": 10, "y": 30, "w": 12, "h": 60, "vertical": true, "value": "cpu.load", "color": "#7aa2ff" }
+    "color": "#7fb8c9", "colorTo": "#99f6e4", "track": "#ffffff1a" },
+  { "type": "bar", "x": 10, "y": 30, "w": 12, "h": 60, "vertical": true, "value": "cpu.load", "color": "#2dd4bf" }
 ]
 ```
 
@@ -192,9 +192,9 @@ my-skin/
 
 ```json widgets
 [
-  { "type": "ring", "x": 10, "y": 10, "w": 80, "h": 80, "thickness": 9, "value": "cpu.load", "color": "#5b8cff" },
+  { "type": "ring", "x": 10, "y": 10, "w": 80, "h": 80, "thickness": 9, "value": "cpu.load", "color": "#2dd4bf" },
   { "type": "text", "x": 10, "y": 10, "w": 80, "h": 80, "align": "center", "valign": "middle", "text": "{cpu.load:0}" },
-  { "type": "ring", "x": 110, "y": 10, "w": 80, "h": 80, "thickness": 6, "startAngle": -90, "sweep": 360, "value": "ram.used_pct", "color": "#9d7bff" }
+  { "type": "ring", "x": 110, "y": 10, "w": 80, "h": 80, "thickness": 6, "startAngle": -90, "sweep": 360, "value": "ram.used_pct", "color": "#7fb8c9" }
 ]
 ```
 
@@ -204,7 +204,7 @@ my-skin/
 ```json widgets
 [
   { "type": "graph", "x": 10, "y": 10, "w": 200, "h": 50, "value": "gpu.load", "history": 60,
-    "color": "#38d9f0", "fill": true, "lineWidth": 2, "track": "#00000040", "radius": 8 }
+    "color": "#99f6e4", "fill": true, "lineWidth": 2, "track": "#00000040", "radius": 8 }
 ]
 ```
 
@@ -215,7 +215,7 @@ my-skin/
 ```json widgets
 [
   { "type": "rect", "x": 10, "y": 10, "w": 100, "h": 40, "radius": 10, "color": "#ffffff14", "border": "#ffffff30", "borderWidth": 1 },
-  { "type": "rect", "x": 120, "y": 10, "w": 60, "h": 40, "radius": 10, "color": "#5b8cff", "colorTo": "#38d9f0" },
+  { "type": "rect", "x": 120, "y": 10, "w": 60, "h": 40, "radius": 10, "color": "#2dd4bf", "colorTo": "#99f6e4" },
   { "type": "line", "x": 10, "y": 60, "x2": 180, "y2": 60, "color": "#ffffff30", "lineWidth": 1 }
 ]
 ```
@@ -231,7 +231,7 @@ my-skin/
 
 ```json widgets
 [
-  { "type": "ring", "x": 10, "y": 10, "w": 70, "h": 70, "thickness": 8, "value": "gpu.temp", "min": 30, "max": 100, "color": "#38d9f0",
+  { "type": "ring", "x": 10, "y": 10, "w": 70, "h": 70, "thickness": 8, "value": "gpu.temp", "min": 30, "max": 100, "color": "#99f6e4",
     "colors": [ { "above": 70, "color": "#ffb454" }, { "above": 82, "color": "#ff5d6c" } ] }
 ]
 ```
@@ -250,7 +250,7 @@ my-skin/
 ```json widgets
 [
   { "type": "repeat", "count": 16, "x": 10, "y": 10, "dx": 14,
-    "template": { "type": "bar", "w": 10, "h": 40, "vertical": true, "radius": 4, "value": "cpu.core$i.load", "color": "#7aa2ff" } }
+    "template": { "type": "bar", "w": 10, "h": 40, "vertical": true, "radius": 4, "value": "cpu.core$i.load", "color": "#2dd4bf" } }
 ]
 ```
 
@@ -261,7 +261,7 @@ my-skin/
   { "type": "repeat", "count": 4, "x": 0, "y": 10, "dy": 18,
     "template": { "type": "group", "children": [
       { "type": "text", "x": 10,  "w": 150, "text": "{proc.cpu$i1.name}" },
-      { "type": "text", "x": 170, "w": 60, "align": "right", "color": "#7aa2ff", "text": "{proc.cpu$i1.cpu:1}%" }
+      { "type": "text", "x": 170, "w": 60, "align": "right", "color": "#2dd4bf", "text": "{proc.cpu$i1.cpu:1}%" }
     ] } }
 ]
 ```
@@ -278,7 +278,7 @@ my-skin/
   { "type": "text", "x": 10, "y": 10, "text": "GPU {gpu.load:0}%", "visible": "gpu.count > 0" },
   { "type": "text", "x": 10, "y": 34, "text": "GPU is hot!", "color": "#ff5d6c", "visible": "gpu.temp >= 80" },
   { "type": "group", "x": 10, "y": 60, "visible": "net.down > 1000000", "children": [
-      { "type": "text", "text": "Downloading: {net.down:rate}", "color": "#38d9f0" }
+      { "type": "text", "text": "Downloading: {net.down:rate}", "color": "#99f6e4" }
   ] }
 ]
 ```
@@ -324,7 +324,7 @@ my-skin/
   "background": { "color": "#000000b0", "radius": 0, "border": { "width": 0 } },
   "fonts": { "main": { "family": "Segoe UI", "size": 12 } },
   "widgets": [
-    { "type": "text", "x": 0, "y": 0, "w": 700, "h": 26, "align": "center", "valign": "middle", "color": "#dfe6ff",
+    { "type": "text", "x": 0, "y": 0, "w": 700, "h": 26, "align": "center", "valign": "middle", "color": "#d6f5f0",
       "text": "CPU {cpu.load:0}%   GPU {gpu.load:0}% {gpu.temp:0}°C   RAM {ram.used_pct:0}%   ↓{net.down:rate}  ↑{net.up:rate}   {time.hm}" }
   ]
 }
@@ -336,15 +336,15 @@ my-skin/
 {
   "name": "Sidebar",
   "window": { "width": 90, "height": 340, "anchor": "center-left", "margin": [10, 0] },
-  "background": { "color": "#0b0e1cc8", "radius": 18 },
+  "background": { "color": "#0a1f27c8", "radius": 18 },
   "widgets": [
-    { "type": "ring", "x": 10, "y": 12,  "w": 70, "h": 70, "thickness": 8, "value": "cpu.load", "color": "#7aa2ff" },
+    { "type": "ring", "x": 10, "y": 12,  "w": 70, "h": 70, "thickness": 8, "value": "cpu.load", "color": "#2dd4bf" },
     { "type": "text", "x": 10, "y": 12,  "w": 70, "h": 70, "align": "center", "valign": "middle", "text": "{cpu.load:0}" },
-    { "type": "ring", "x": 10, "y": 98,  "w": 70, "h": 70, "thickness": 8, "value": "gpu.load", "color": "#38d9f0" },
+    { "type": "ring", "x": 10, "y": 98,  "w": 70, "h": 70, "thickness": 8, "value": "gpu.load", "color": "#99f6e4" },
     { "type": "text", "x": 10, "y": 98,  "w": 70, "h": 70, "align": "center", "valign": "middle", "text": "{gpu.load:0}" },
-    { "type": "ring", "x": 10, "y": 184, "w": 70, "h": 70, "thickness": 8, "value": "ram.used_pct", "color": "#9d7bff" },
+    { "type": "ring", "x": 10, "y": 184, "w": 70, "h": 70, "thickness": 8, "value": "ram.used_pct", "color": "#7fb8c9" },
     { "type": "text", "x": 10, "y": 184, "w": 70, "h": 70, "align": "center", "valign": "middle", "text": "{ram.used_pct:0}" },
-    { "type": "text", "x": 0, "y": 280, "w": 90, "align": "center", "color": "#9aa3c0", "text": "{time.hm}" }
+    { "type": "text", "x": 0, "y": 280, "w": 90, "align": "center", "color": "#8fb3bc", "text": "{time.hm}" }
   ]
 }
 ```
@@ -357,7 +357,7 @@ my-skin/
 
 ## 13. Файл настроек и горячая клавиша
 
-`%APPDATA%\QuasarMonitor\settings.json` (создаётся автоматически; правьте, пока приложение закрыто):
+`%APPDATA%\EuclaseMonitor\settings.json` (создаётся автоматически; правьте, пока приложение закрыто):
 
 ```json
 {
@@ -381,7 +381,7 @@ my-skin/
 - **Число показывает `n/a`.** Такой метрики нет на этом ПК (см. [METRICS.md](METRICS.md)) или в названии опечатка.
 - **Моя картинка не появляется.** Файл должен лежать внутри папки скина; проверьте имя и расширение `png` / `jpg` в журнале.
 - **Я всё сломал.** Скопируйте скин заново из встроенной папки (`skins\...` рядом с exe) или удалите свою папку `-mine` в
-  `%APPDATA%\QuasarMonitor\skins` и выберите исходный скин в меню трея.
+  `%APPDATA%\EuclaseMonitor\skins` и выберите исходный скин в меню трея.
 
 ## 15. Поделитесь своим скином
 

@@ -1,4 +1,4 @@
-// Quasar Monitor: tray resident system monitor with a skinnable overlay.
+// Euclase Monitor: tray resident system monitor with a skinnable overlay.
 // One translation unit on purpose: the whole shell (tray, overlay window, settings, watcher) is ~600 lines.
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0A00
@@ -21,9 +21,9 @@
 
 using namespace qm;
 
-static const wchar_t* kCtrlClass = L"QuasarMonitor.Control";
-static const wchar_t* kOverlayClass = L"QuasarMonitor.Overlay";
-static const wchar_t* kAppName = L"Quasar Monitor";
+static const wchar_t* kCtrlClass = L"EuclaseMonitor.Control";
+static const wchar_t* kOverlayClass = L"EuclaseMonitor.Overlay";
+static const wchar_t* kAppName = L"Euclase Monitor";
 enum : UINT { WM_TRAY = WM_APP + 10, WM_WATCH = WM_APP + 1, WM_SHOW_EXISTING = WM_APP + 2, WM_OVERLAY_MOVED = WM_APP + 3 };
 enum : UINT_PTR { T_TICK = 1, T_RELOAD = 2 };
 enum : int { ID_SHOW = 1000, ID_CLICK, ID_RELOAD, ID_CUSTOMIZE, ID_FOLDER, ID_AUTOSTART, ID_LOG, ID_EXIT, ID_SKIN0 = 2000 };
@@ -302,10 +302,10 @@ struct App {
             Gdiplus::Graphics g(&bmp);
             g.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
             g.Clear(Gdiplus::Color(0, 0, 0, 0));
-            Gdiplus::LinearGradientBrush br(Gdiplus::PointF(0, 0), Gdiplus::PointF(32, 32), Gdiplus::Color(255, 139, 108, 255), Gdiplus::Color(255, 56, 217, 240));
+            Gdiplus::LinearGradientBrush br(Gdiplus::PointF(0, 0), Gdiplus::PointF(32, 32), Gdiplus::Color(255, 45, 212, 191), Gdiplus::Color(255, 153, 246, 228));
             Gdiplus::Pen pen(&br, 5.f);
             g.DrawArc(&pen, 4.f, 4.f, 24.f, 24.f, 130.f, 280.f);
-            Gdiplus::SolidBrush dot(Gdiplus::Color(255, 238, 241, 251));
+            Gdiplus::SolidBrush dot(Gdiplus::Color(255, 15, 41, 51));
             g.FillEllipse(&dot, 13.f, 13.f, 6.f, 6.f);
         }
         HICON h = nullptr;
@@ -468,7 +468,7 @@ struct App {
         exporter.update(metrics);
         if (shown) present(false);
         char tip[128];
-        snprintf(tip, sizeof tip, "Quasar Monitor  CPU %.0f%%  GPU %.0f%%  RAM %.0f%%", metrics.get("cpu.load"), metrics.get("gpu.load"), metrics.get("ram.used_pct"));
+        snprintf(tip, sizeof tip, "Euclase Monitor  CPU %.0f%%  GPU %.0f%%  RAM %.0f%%", metrics.get("cpu.load"), metrics.get("gpu.load"), metrics.get("ram.used_pct"));
         for (char* p = tip; *p; ++p) {}
         std::string s = tip;
         for (size_t k = s.find("nan"); k != std::string::npos; k = s.find("nan")) s.replace(k, 3, "-");   // no GPU: show a dash, not "nan"
@@ -501,7 +501,7 @@ struct App {
     }
     static bool autostartOn() {
         HKEY k; bool on = false;
-        if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ, &k) == ERROR_SUCCESS) { on = RegQueryValueExW(k, L"QuasarMonitor", nullptr, nullptr, nullptr, nullptr) == ERROR_SUCCESS; RegCloseKey(k); }
+        if (RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ, &k) == ERROR_SUCCESS) { on = RegQueryValueExW(k, L"EuclaseMonitor", nullptr, nullptr, nullptr, nullptr) == ERROR_SUCCESS; RegCloseKey(k); }
         return on;
     }
     static void setAutostart(bool on) {
@@ -510,8 +510,8 @@ struct App {
         if (on) {
             wchar_t exe[MAX_PATH * 2]; GetModuleFileNameW(nullptr, exe, MAX_PATH * 2);
             std::wstring v = std::wstring(L"\"") + exe + L"\"";
-            RegSetValueExW(k, L"QuasarMonitor", 0, REG_SZ, (const BYTE*)v.c_str(), (DWORD)((v.size() + 1) * 2));
-        } else RegDeleteValueW(k, L"QuasarMonitor");
+            RegSetValueExW(k, L"EuclaseMonitor", 0, REG_SZ, (const BYTE*)v.c_str(), (DWORD)((v.size() + 1) * 2));
+        } else RegDeleteValueW(k, L"EuclaseMonitor");
         RegCloseKey(k);
     }
     void command(int id) {
@@ -586,7 +586,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE, PWSTR, int) {
     typedef BOOL(WINAPI * SetCtxFn)(DPI_AWARENESS_CONTEXT);
     if (auto fn = (SetCtxFn)(void*)GetProcAddress(GetModuleHandleW(L"user32.dll"), "SetProcessDpiAwarenessContext")) fn(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
-    HANDLE mutex = CreateMutexW(nullptr, TRUE, L"Local\\QuasarMonitor.Single");
+    HANDLE mutex = CreateMutexW(nullptr, TRUE, L"Local\\EuclaseMonitor.Single");
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         if (HWND other = FindWindowW(kCtrlClass, nullptr)) PostMessageW(other, WM_SHOW_EXISTING, 0, 0);
         return 0;

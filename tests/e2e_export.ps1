@@ -1,13 +1,13 @@
 # End-to-end test of the metrics export with the real exe. Temporarily enables "export" in settings.json and restores it.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
-$exe = "$root\build\QuasarMonitor.exe"
-$cfgPath = "$env:APPDATA\QuasarMonitor\settings.json"
+$exe = "$root\build\EuclaseMonitor.exe"
+$cfgPath = "$env:APPDATA\EuclaseMonitor\settings.json"
 $backup = if (Test-Path $cfgPath) { Get-Content $cfgPath -Raw } else { $null }
 $fail = 0
 function Check($name, $ok) { if ($ok) { Write-Host "  ok   $name" } else { Write-Host "  FAIL $name"; $script:fail++ } }
 
-Get-Process QuasarMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-Process EuclaseMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep 1
 Set-Content $cfgPath '{ "skin": "minimal", "export": { "enabled": true, "port": 18099, "lan": false } }' -Encoding UTF8
 $p = Start-Process $exe -PassThru

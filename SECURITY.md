@@ -2,7 +2,7 @@
 
 ## Supported versions
 
-Only the latest release of Quasar Monitor receives security fixes.
+Only the latest release of Euclase Monitor receives security fixes.
 
 ## Reporting a vulnerability
 

@@ -1,15 +1,15 @@
 # End-to-end test with the real exe: hot reload, rejected broken skin keeps the old one, recovery, no leaks.
-# Edits a COPY of a skin inside %APPDATA%\QuasarMonitor\skins\e2e-test and removes it afterwards.
+# Edits a COPY of a skin inside %APPDATA%\EuclaseMonitor\skins\e2e-test and removes it afterwards.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
-$exe = "$root\build\QuasarMonitor.exe"
-$log = "$env:APPDATA\QuasarMonitor\monitor.log"
-$dir = "$env:APPDATA\QuasarMonitor\skins\e2e-test"
+$exe = "$root\build\EuclaseMonitor.exe"
+$log = "$env:APPDATA\EuclaseMonitor\monitor.log"
+$dir = "$env:APPDATA\EuclaseMonitor\skins\e2e-test"
 $fail = 0
 function Check($name, $ok) { if ($ok) { Write-Host "  ok   $name" } else { Write-Host "  FAIL $name"; $script:fail++ } }
 function LogSince($mark) { if (Test-Path $log) { (Get-Content $log -Raw) } else { '' } }
 
-Get-Process QuasarMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-Process EuclaseMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
 Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force $dir | Out-Null
 Copy-Item "$root\skins\minimal\skin.json" "$dir\skin.json"

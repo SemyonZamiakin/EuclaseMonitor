@@ -1,15 +1,15 @@
 <div align="center">
 
-# Quasar Monitor
+# Euclase Monitor
 
 **Системный монитор для Windows: трей, оверлей, скины в JSON.**
 **System monitor for Windows: tray, overlay, JSON skins.**
 
-![platform](https://img.shields.io/badge/Windows-10%20%7C%2011-informational)
-![size](https://img.shields.io/badge/exe-~400%20KB-informational)
-![deps](https://img.shields.io/badge/dependencies-none-informational)
-![license](https://img.shields.io/badge/license-MIT-blue)
-[![CI](https://github.com/SemyonZamiakin/QuasarMonitor/actions/workflows/ci.yml/badge.svg)](https://github.com/SemyonZamiakin/QuasarMonitor/actions/workflows/ci.yml)
+![platform](https://img.shields.io/badge/Windows-10%20%7C%2011-2DD4BF?labelColor=0F2933)
+![size](https://img.shields.io/badge/exe-~400%20KB-2DD4BF?labelColor=0F2933)
+![deps](https://img.shields.io/badge/dependencies-none-2DD4BF?labelColor=0F2933)
+![license](https://img.shields.io/badge/license-MIT-2DD4BF?labelColor=0F2933)
+[![CI](https://github.com/SemyonZamiakin/EuclaseMonitor/actions/workflows/ci.yml/badge.svg)](https://github.com/SemyonZamiakin/EuclaseMonitor/actions/workflows/ci.yml)
 
 <img src="docs/img/gallery.png" width="860" alt="Три встроенных скина на живых данных / Three bundled skins with live data">
 
@@ -28,7 +28,7 @@
 ## Зачем
 
 Диспетчер задач тяжёлый, а классические мониторы железа перегружены, выглядят как из прошлого века, требуют плагинов или показывают рекламу.
-Quasar Monitor это один `.exe` на ~400 КБ: без установщика, без .NET, без аккаунтов, без рекламы, без телеметрии.
+Euclase Monitor это один `.exe` на ~400 КБ: без установщика, без .NET, без аккаунтов, без рекламы, без телеметрии.
 Он показывает самое важное, там, где вам удобно, в любом виде, который можно описать текстовым файлом.
 
 ## Возможности
@@ -43,8 +43,8 @@ Quasar Monitor это один `.exe` на ~400 КБ: без установщи�
 
 ## Быстрый старт
 
-1. Скачайте `QuasarMonitor-<версия>.zip` в разделе [Releases](../../releases) и распакуйте куда угодно.
-2. Запустите `QuasarMonitor.exe`. Оверлей появится в правом верхнем углу, а в трее будет значок с меню.
+1. Скачайте `EuclaseMonitor-<версия>.zip` в разделе [Releases](../../releases) и распакуйте куда угодно.
+2. Запустите `EuclaseMonitor.exe`. Оверлей появится в правом верхнем углу, а в трее будет значок с меню.
 3. Трей → **Skins** (скины): `glass`, `minimal` или `aurora`. Трей → **Customize this skin...**, чтобы сделать свой.
 
 Windows может предупредить о неизвестном издателе: exe пока не подписан цифровой подписью. Нажмите *Подробнее → Выполнить в любом случае*,
@@ -57,10 +57,10 @@ Windows может предупредить о неизвестном издат
 {
   "name": "Mine",
   "window": { "width": 220, "height": 70, "anchor": "top-left", "margin": [20, 20] },
-  "background": { "image": "wallpaper.jpg", "imageOpacity": 0.5, "color": "#0b0e1c", "radius": 16 },
+  "background": { "image": "wallpaper.jpg", "imageOpacity": 0.5, "color": "#0a1f27", "radius": 16 },
   "widgets": [
     { "type": "text", "x": 14, "y": 10, "text": "CPU {cpu.load:0}%   GPU {gpu.temp:0}°C", "color": "#ffffff" },
-    { "type": "bar",  "x": 14, "y": 42, "w": 192, "h": 8, "radius": 4, "value": "cpu.load", "color": "#5b8cff",
+    { "type": "bar",  "x": 14, "y": 42, "w": 192, "h": 8, "radius": 4, "value": "cpu.load", "color": "#2dd4bf",
       "colors": [ { "above": 90, "color": "#ff5d6c" } ] }
   ]
 }
@@ -96,8 +96,8 @@ Windows может предупредить о неизвестном издат
 Нужны Windows и [MSYS2](https://www.msys2.org) с `g++` для mingw64 (`pacman -S mingw-w64-x86_64-gcc`). Больше ничего.
 
 ```powershell
-./build.ps1          # собирает build\QuasarMonitor.exe и запускает все тесты
-./package.ps1        # дополнительно делает dist\QuasarMonitor-<версия>.zip
+./build.ps1          # собирает build\EuclaseMonitor.exe и запускает все тесты
+./package.ps1        # дополнительно делает dist\EuclaseMonitor-<версия>.zip
 ```
 
 Подробнее: [архитектура и тесты](docs/ARCHITECTURE.md) (на английском).
@@ -115,7 +115,7 @@ MIT, см. [LICENSE](LICENSE). Участие: [CONTRIBUTING.md](CONTRIBUTING.md
 ## Why
 
 Task Manager is heavy, and the classic hardware monitors are cluttered, ugly, need plugins, or never stop nagging.
-Quasar Monitor is one ~400 KB `.exe`: no installer, no .NET, no accounts, no ads, no telemetry.
+Euclase Monitor is one ~400 KB `.exe`: no installer, no .NET, no accounts, no ads, no telemetry.
 It shows what matters, where you want it, in any look you can describe in a text file.
 
 ## Features
@@ -130,8 +130,8 @@ It shows what matters, where you want it, in any look you can describe in a text
 
 ## Get started
 
-1. Download `QuasarMonitor-<version>.zip` from [Releases](../../releases) and unzip anywhere.
-2. Run `QuasarMonitor.exe`. The overlay appears in the top-right corner; the tray icon has the menu.
+1. Download `EuclaseMonitor-<version>.zip` from [Releases](../../releases) and unzip anywhere.
+2. Run `EuclaseMonitor.exe`. The overlay appears in the top-right corner; the tray icon has the menu.
 3. Tray → **Skins** to pick `glass`, `minimal` or `aurora`. Tray → **Customize this skin...** to make it yours.
 
 Windows may warn about an unknown publisher: the exe is not code-signed yet. Click *More info → Run anyway*,
@@ -144,10 +144,10 @@ check the SHA-256 on the release page, or build it yourself (below).
 {
   "name": "Mine",
   "window": { "width": 220, "height": 70, "anchor": "top-left", "margin": [20, 20] },
-  "background": { "image": "wallpaper.jpg", "imageOpacity": 0.5, "color": "#0b0e1c", "radius": 16 },
+  "background": { "image": "wallpaper.jpg", "imageOpacity": 0.5, "color": "#0a1f27", "radius": 16 },
   "widgets": [
     { "type": "text", "x": 14, "y": 10, "text": "CPU {cpu.load:0}%   GPU {gpu.temp:0}°C", "color": "#ffffff" },
-    { "type": "bar",  "x": 14, "y": 42, "w": 192, "h": 8, "radius": 4, "value": "cpu.load", "color": "#5b8cff",
+    { "type": "bar",  "x": 14, "y": 42, "w": 192, "h": 8, "radius": 4, "value": "cpu.load", "color": "#2dd4bf",
       "colors": [ { "above": 90, "color": "#ff5d6c" } ] }
   ]
 }
@@ -183,8 +183,8 @@ While the overlay is hidden it samples every 3 s and hands its memory back to Wi
 Requires Windows and [MSYS2](https://www.msys2.org) mingw64 `g++` (`pacman -S mingw-w64-x86_64-gcc`). Nothing else.
 
 ```powershell
-./build.ps1          # builds build\QuasarMonitor.exe and runs all unit tests
-./package.ps1        # also makes dist\QuasarMonitor-<version>.zip
+./build.ps1          # builds build\EuclaseMonitor.exe and runs all unit tests
+./package.ps1        # also makes dist\EuclaseMonitor-<version>.zip
 ```
 
 More: [Architecture and tests](docs/ARCHITECTURE.md).

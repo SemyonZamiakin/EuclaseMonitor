@@ -1,5 +1,5 @@
-# Builds Quasar Monitor with MSYS2 mingw64 g++ (no other dependencies), runs the tests.
-#   ./build.ps1            -> build\QuasarMonitor.exe, build\render_skin.exe + run tests
+# Builds Euclase Monitor with MSYS2 mingw64 g++ (no other dependencies), runs the tests.
+#   ./build.ps1            -> build\EuclaseMonitor.exe, build\render_skin.exe + run tests
 #   ./build.ps1 -NoTests
 param([switch]$NoTests)
 $ErrorActionPreference = 'Stop'
@@ -19,7 +19,7 @@ function Build($name, $args2) {
     if ($LASTEXITCODE) { throw "build of $name failed" }
 }
 
-Build 'QuasarMonitor.exe' (@('-std=c++17', '-Os') + $warn + @('-mwindows', '-municode', '-static', '-Wl,--gc-sections', '-s', 'src\main.cpp') + $core + @('-o', 'build\QuasarMonitor.exe') + $libs)
+Build 'EuclaseMonitor.exe' (@('-std=c++17', '-Os') + $warn + @('-mwindows', '-municode', '-static', '-Wl,--gc-sections', '-s', 'src\main.cpp') + $core + @('-o', 'build\EuclaseMonitor.exe') + $libs)
 Build 'render_skin.exe'   (@('-std=c++17', '-O2') + $warn + @('tools\render_skin.cpp') + $core + @('-o', 'build\render_skin.exe') + $libs)
 
 if (-not $NoTests) {
@@ -38,4 +38,4 @@ if (-not $NoTests) {
         if ($LASTEXITCODE) { throw "test_docs failed for $doc" }
     }
 }
-Write-Host "OK: build\QuasarMonitor.exe  ($([int]((Get-Item build\QuasarMonitor.exe).Length/1KB)) KB)"
+Write-Host "OK: build\EuclaseMonitor.exe  ($([int]((Get-Item build\EuclaseMonitor.exe).Length/1KB)) KB)"

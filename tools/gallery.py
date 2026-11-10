@@ -12,7 +12,7 @@ px = bg.load()
 for y in range(H):
     for x in range(W):
         t = (x / W * 0.6 + y / H * 0.4)
-        px[x, y] = (int(34 + 70 * t), int(44 + 40 * (1 - t)), int(86 + 90 * t), 255)
+        px[x, y] = (int(22 + 46 * t), int(60 + 70 * t), int(72 + 70 * t), 255)
 bg.alpha_composite(a, (pad, pad))
 bg.alpha_composite(g, (pad * 2 + a.width, pad))
 bg.alpha_composite(m, (pad * 2 + a.width + (max(g.width, m.width) - m.width) // 2, pad * 2 + g.height))

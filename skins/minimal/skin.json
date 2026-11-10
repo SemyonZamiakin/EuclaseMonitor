@@ -1,12 +1,12 @@
 {
   // Minimal: one line, small, easy on the eyes. Good to leave on while gaming.
-  "name": "Quasar Minimal",
-  "author": "Quasar Soft",
+  "name": "Euclase Minimal",
+  "author": "Euclase",
   "window": { "width": 330, "height": 38, "anchor": "top-center", "margin": [0, 14], "clickThrough": true },
-  "background": { "color": "#0b0e1ccc", "radius": 19, "border": { "color": "#ffffff1f", "width": 1 } },
+  "background": { "color": "#0a1f27cc", "radius": 19, "border": { "color": "#ffffff1f", "width": 1 } },
   "fonts": { "main": { "family": "Segoe UI Semibold", "size": 13 } },
   "widgets": [
-    { "type": "text", "x": 0, "y": 0, "w": 330, "h": 38, "align": "center", "valign": "middle", "color": "#e8ebf5",
+    { "type": "text", "x": 0, "y": 0, "w": 330, "h": 38, "align": "center", "valign": "middle", "color": "#f8fafc",
       "text": "CPU {cpu.load:0}%    GPU {gpu.load:0}%  {gpu.temp:0}°    RAM {ram.used_pct:0}%" }
   ]
 }

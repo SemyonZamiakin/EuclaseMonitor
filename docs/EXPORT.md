@@ -1,11 +1,11 @@
 # Metrics export: feed your own displays, scripts and panels
 
-Quasar Monitor can publish its numbers as JSON over HTTP, so an **ESP32 with an SPI display**, a Raspberry Pi, a script or
+Euclase Monitor can publish its numbers as JSON over HTTP, so an **ESP32 with an SPI display**, a Raspberry Pi, a script or
 a web page can show them. It is **off by default**.
 
 ## Turn it on
 
-Edit `%APPDATA%\QuasarMonitor\settings.json` while the app is closed:
+Edit `%APPDATA%\EuclaseMonitor\settings.json` while the app is closed:
 
 ```json
 {
@@ -44,31 +44,31 @@ Python: `requests.get("http://127.0.0.1:8099/metrics").json()["cpu.load"]`
 ## ⚠️ Read this before enabling `lan`
 
 The server has **no password and no encryption**. With `"lan": true` anybody on your network can read your CPU, GPU,
-RAM and network numbers. To limit the damage Quasar Monitor **never sends the list of running programs
+RAM and network numbers. To limit the damage Euclase Monitor **never sends the list of running programs
 (`proc.*`) in LAN mode**, but the hardware numbers are still public to the network. Use it only on a network you trust,
 and only for the time you need it. The first time you run it Windows Firewall will ask whether to allow access.
 
 Limits: one request is served at a time, a client that connects and sends nothing blocks the server for up to 2 seconds
 (then it moves on). Only `GET` is accepted.
 
-## Example: an ESP32 + SPI display showing your PC (QuasarUI)
+## Example: an ESP32 + SPI display showing your PC (EuclaseUI)
 
 > **Not tested on real hardware.** The HTTP side is tested; this sketch is a starting point written against the
 > documented API. It needs `lan: true`, the PC's IP address, and the [ArduinoJson](https://arduinojson.org) library.
 > Please report back if you try it.
 
 ```cpp
-// ESP32 (Arduino core): polls Quasar Monitor every second and draws two gauges with QuasarUI.
+// ESP32 (Arduino core): polls Euclase Monitor every second and draws two gauges with EuclaseUI.
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
-#include <QuasarUI.h>   // https://github.com/SemyonZamiakin/QuasarUI
+#include <EuclaseUI.h>   // https://github.com/SemyonZamiakin/EuclaseUI
 
 const char* WIFI_SSID = "your-wifi";
 const char* WIFI_PASS = "your-password";
 const char* URL = "http://192.168.1.50:8099/metrics?keys=cpu.load,gpu.load,gpu.temp";   // your PC's address
 
-// ... create the Bus / Panel / Canvas / Screen as in the QuasarUI Dashboard example, plus two Gauge widgets ...
+// ... create the Bus / Panel / Canvas / Screen as in the EuclaseUI Dashboard example, plus two Gauge widgets ...
 
 void loop() {
     static uint32_t last = 0;
@@ -85,6 +85,6 @@ void loop() {
         }
     }
     http.end();
-    screen->update();   // QuasarUI sends only the rectangles that changed
+    screen->update();   // EuclaseUI sends only the rectangles that changed
 }
 ```

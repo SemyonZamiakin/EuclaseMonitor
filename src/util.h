@@ -14,11 +14,11 @@ bool fileExists(const std::wstring& path);
 bool dirExists(const std::wstring& path);
 
 std::wstring exeDir();
-std::wstring appDataDir();                          // %APPDATA%\QuasarMonitor (created on demand)
+std::wstring appDataDir();                          // %APPDATA%\EuclaseMonitor (created on demand)
 std::wstring joinPath(const std::wstring& a, const std::wstring& b);
 std::vector<std::wstring> listSubdirs(const std::wstring& dir);
 
-// Appends a line to %APPDATA%\QuasarMonitor\monitor.log (capped at ~256 KB, then truncated).
+// Appends a line to %APPDATA%\EuclaseMonitor\monitor.log (capped at ~256 KB, then truncated).
 void logLine(const std::string& msg);
 
 }  // namespace qm

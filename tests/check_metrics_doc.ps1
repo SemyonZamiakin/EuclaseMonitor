@@ -1,12 +1,12 @@
 # Every metric named in docs/METRICS.md must exist in the live app (via the HTTP export). Keeps the reference honest.
 $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
-$cfgPath = "$env:APPDATA\QuasarMonitor\settings.json"
+$cfgPath = "$env:APPDATA\EuclaseMonitor\settings.json"
 $backup = if (Test-Path $cfgPath) { Get-Content $cfgPath -Raw } else { $null }
-Get-Process QuasarMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
+Get-Process EuclaseMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
 Start-Sleep 1
 Set-Content $cfgPath '{ "skin": "minimal", "visible": false, "export": { "enabled": true, "port": 18098, "lan": false } }' -Encoding UTF8
-$p = Start-Process "$root\build\QuasarMonitor.exe" -PassThru
+$p = Start-Process "$root\build\EuclaseMonitor.exe" -PassThru
 $missing = @(); $checked = 0
 try {
     Start-Sleep 7   # the process sampler runs every 2 s and the disk sampler every 10 s: wait for both

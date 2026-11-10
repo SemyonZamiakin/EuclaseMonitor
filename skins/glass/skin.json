@@ -1,14 +1,14 @@
 {
-  // Quasar Glass: three rings, network and a CPU history strip.
+  // Euclase Glass: three rings, network and a CPU history strip.
   // Everything here is plain text: edit, save, and the overlay updates by itself.
-  "name": "Quasar Glass",
-  "author": "Quasar Soft",
+  "name": "Euclase Glass",
+  "author": "Euclase",
 
   // Colours used below as $name. Change them here to re-theme the whole skin.
   "vars": {
-    "text":   "#eef1fb",
-    "muted":  "#8f98b3",
-    "accent": "#5b8cff",
+    "text":   "#f8fafc",
+    "muted":  "#8fb3bc",
+    "accent": "#2dd4bf",
     "warn":   "#ffb454",
     "danger": "#ff5d6c"
   },
@@ -17,7 +17,7 @@
   "update": 1000,
 
   "background": {
-    "gradient": { "from": "#101733ea", "to": "#1a1236ea", "angle": 60 },
+    "gradient": { "from": "#0f2933ea", "to": "#123541ea", "angle": 60 },
     "radius": 20,
     "border": { "color": "#ffffff26", "width": 1 }
   },
@@ -36,13 +36,13 @@
     { "type": "text", "x": 20, "y": 106, "w": 84, "align": "center", "font": "label", "color": "$muted", "text": "CPU" },
 
     // --- GPU ring ---
-    { "type": "ring", "x": 128, "y": 18, "w": 84, "h": 84, "thickness": 9, "value": "gpu.load", "color": "#38d9f0",
+    { "type": "ring", "x": 128, "y": 18, "w": 84, "h": 84, "thickness": 9, "value": "gpu.load", "color": "#99f6e4",
       "colors": [ { "above": 85, "color": "$warn" }, { "above": 97, "color": "$danger" } ] },
     { "type": "text", "x": 128, "y": 18, "w": 84, "h": 84, "align": "center", "valign": "middle", "font": "big", "color": "$text", "text": "{gpu.load:0}" },
     { "type": "text", "x": 128, "y": 106, "w": 84, "align": "center", "font": "label", "color": "$muted", "text": "GPU  {gpu.temp:0}°C" },
 
     // --- RAM ring ---
-    { "type": "ring", "x": 236, "y": 18, "w": 84, "h": 84, "thickness": 9, "value": "ram.used_pct", "color": "#9d7bff",
+    { "type": "ring", "x": 236, "y": 18, "w": 84, "h": 84, "thickness": 9, "value": "ram.used_pct", "color": "#7fb8c9",
       "colors": [ { "above": 85, "color": "$warn" }, { "above": 95, "color": "$danger" } ] },
     { "type": "text", "x": 236, "y": 18, "w": 84, "h": 84, "align": "center", "valign": "middle", "font": "big", "color": "$text", "text": "{ram.used_pct:0}" },
     { "type": "text", "x": 236, "y": 106, "w": 84, "align": "center", "font": "label", "color": "$muted", "text": "RAM  {ram.used_gb:1} GB" },
