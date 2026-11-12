@@ -5,6 +5,7 @@
 #include <shlwapi.h>
 #include <algorithm>
 #include <cmath>
+#include <cstring>
 #include <map>
 #include <vector>
 #include <gdiplus.h>
@@ -18,6 +19,13 @@ struct RenderImpl {
     std::map<std::string, std::unique_ptr<Font>> fonts;
     std::map<std::wstring, std::unique_ptr<Bitmap>> images;   // detached copies: the file is never locked, so users can overwrite it while editing
     float fontScale = 0;
+    // The background (fill, gradient, picture, border) never changes between frames: it is rendered once
+    // per skin/size/scale and then copied in. For a skin with a scaled picture this is most of a frame.
+    std::vector<uint8_t> bg;
+    int bgW = 0, bgH = 0;
+    float bgScale = 0;
+    const Skin* bgSkin = nullptr;
+    bool bgValid = false;
 };
 
 static Gdiplus::Color toG(const qm::Color& c, float opacity = 1.f) { return Gdiplus::Color((BYTE)(c.a * std::min(1.f, std::max(0.f, opacity))), c.r, c.g, c.b); }
@@ -100,21 +108,24 @@ Renderer::~Renderer() {
     clearCaches();
     if (d_->token) GdiplusShutdown(d_->token);
 }
-void Renderer::clearCaches() { d_->fonts.clear(); d_->images.clear(); }
+void Renderer::clearCaches() { d_->fonts.clear(); d_->images.clear(); d_->bgValid = false; d_->bg.clear(); d_->bg.shrink_to_fit(); }
 
 void Renderer::draw(void* bits, int pxW, int pxH, const Skin& s, const Metrics& m, float scale) {
+    const size_t bytes = (size_t)pxW * pxH * 4;
+    const bool bgHit = d_->bgValid && d_->bgSkin == &s && d_->bgW == pxW && d_->bgH == pxH && d_->bgScale == scale;
+    if (bgHit) memcpy(bits, d_->bg.data(), bytes);
     Bitmap surface(pxW, pxH, pxW * 4, PixelFormat32bppPARGB, (BYTE*)bits);
     Graphics g(&surface);
     g.SetSmoothingMode(SmoothingModeAntiAlias);
     g.SetPixelOffsetMode(PixelOffsetModeHalf);
     g.SetTextRenderingHint(TextRenderingHintAntiAlias);   // grayscale AA: ClearType is wrong on a transparent surface
     g.SetInterpolationMode(InterpolationModeHighQualityBicubic);
-    g.Clear(Gdiplus::Color(0, 0, 0, 0));
     g.ScaleTransform(scale, scale);
     const float W = s.width, H = s.height;
 
-    // ---- background
-    {
+    // ---- background (rendered once, then reused)
+    if (!bgHit) {
+        g.Clear(Gdiplus::Color(0, 0, 0, 0));
         GraphicsPath bg;
         roundedPath(bg, 0, 0, W, H, s.bgRadius);
         if (s.bgGradient) {
@@ -140,6 +151,9 @@ void Renderer::draw(void* bits, int pxW, int pxH, const Skin& s, const Metrics& 
             roundedPath(inner, s.bgBorderWidth / 2, s.bgBorderWidth / 2, W - s.bgBorderWidth, H - s.bgBorderWidth, s.bgRadius);
             g.DrawPath(&pen, &inner);
         }
+        g.Flush(FlushIntentionSync);
+        d_->bg.assign((const uint8_t*)bits, (const uint8_t*)bits + bytes);
+        d_->bgW = pxW; d_->bgH = pxH; d_->bgScale = scale; d_->bgSkin = &s; d_->bgValid = true;
     }
 
     // ---- widgets

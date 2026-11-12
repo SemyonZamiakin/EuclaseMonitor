@@ -7,7 +7,7 @@ $backup = if (Test-Path $cfgPath) { Get-Content $cfgPath -Raw } else { $null }
 $fail = 0
 function Check($name, $ok) { if ($ok) { Write-Host "  ok   $name" } else { Write-Host "  FAIL $name"; $script:fail++ } }
 
-Get-Process EuclaseMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
+if (Get-Process EuclaseMonitor -ErrorAction SilentlyContinue) { throw "Close Euclase Monitor first: this test starts its own instance and never stops yours" }
 Start-Sleep 1
 Set-Content $cfgPath '{ "skin": "minimal", "export": { "enabled": true, "port": 18099, "lan": false } }' -Encoding UTF8
 $p = Start-Process $exe -PassThru

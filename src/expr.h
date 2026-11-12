@@ -15,6 +15,7 @@ public:
     double eval(const Metrics& m) const;     // NaN when a metric is missing
     bool valid() const { return !nodes_.empty(); }
     const std::string& source() const { return src_; }
+    void collectNames(std::vector<std::string>& out) const;   // metric names this expression reads
 
     struct Node { int op = 0; double num = 0; std::string name; int a = -1, b = -1, c = -1; std::vector<int> args; };
 
@@ -33,6 +34,7 @@ public:
     bool parse(const std::string& text, std::string& err);
     std::string render(const Metrics& m) const;
     bool hasDynamic() const { return dynamic_; }
+    void collectNames(std::vector<std::string>& out) const;
 
 private:
     struct Seg { std::string lit; Expr expr; std::string fmt; std::string bareName; bool isExpr = false; };

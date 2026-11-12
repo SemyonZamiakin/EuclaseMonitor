@@ -65,6 +65,26 @@ int main() {
     } else printf("(no NVIDIA GPU / NVML: gpu checks skipped)\n");
 
     CHECK(m.getStr("time.hm") && m.getStr("time.hm")->size() == 5);
+    // demand: with nothing requested, the expensive samplers leave their metrics alone
+    {
+        auto lazy = createSamplers();
+        Demand d; d.all = false; d.names = {"cpu.load", "gpu.load"};
+        for (auto& s : lazy) s->setDemand(d);
+        Metrics q;
+        for (auto& s : lazy) s->sample(q, 1.0);
+        CHECK(q.has("cpu.load"));
+        CHECK(!q.has("proc.count") && !q.has("net.down"));          // process list and interfaces were not read
+        CHECK(!q.has("gpu.power_w") && !q.has("gpu.fan_pct"));      // no NVML power / fan queries
+        CHECK(d.wantPrefix("cpu.") && !d.wantPrefix("proc.") && d.wantGpu("load") && !d.wantGpu("temp"));
+        d.names.insert("gpu1.temp");
+        CHECK(d.wantGpu("temp"));
+        d.all = false; d.names = {"proc.cpu1.name"};
+        for (auto& s : lazy) s->setDemand(d);
+        Metrics q2;
+        for (auto& s : lazy) s->sample(q2, 1.0);
+        CHECK(q2.has("proc.count"));                                 // requested again: sampled again
+    }
+
     printf("%d checks, %d failed\n", g_run, g_fail);
     return g_fail ? 1 : 0;
 }

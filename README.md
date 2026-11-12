@@ -6,7 +6,8 @@
 **System monitor for Windows: tray, overlay, JSON skins.**
 
 ![platform](https://img.shields.io/badge/Windows-10%20%7C%2011-2DD4BF?labelColor=0F2933)
-![size](https://img.shields.io/badge/exe-~400%20KB-2DD4BF?labelColor=0F2933)
+![size](https://img.shields.io/badge/exe-~420%20KB-2DD4BF?labelColor=0F2933)
+![version](https://img.shields.io/badge/version-1.1.0-2DD4BF?labelColor=0F2933)
 ![deps](https://img.shields.io/badge/dependencies-none-2DD4BF?labelColor=0F2933)
 ![license](https://img.shields.io/badge/license-MIT-2DD4BF?labelColor=0F2933)
 [![CI](https://github.com/SemyonZamiakin/EuclaseMonitor/actions/workflows/ci.yml/badge.svg)](https://github.com/SemyonZamiakin/EuclaseMonitor/actions/workflows/ci.yml)
@@ -69,20 +70,37 @@ Windows может предупредить о неизвестном издат
 Фон меняется заменой одной картинки или одного цвета. Остальное (позиции, шрифты, какие числа показывать, когда они появляются)
 настраивается так же просто. Смотрите **[docs/CUSTOMIZE.ru.md](docs/CUSTOMIZE.ru.md)**.
 
-## Сколько занимает
+## Сколько занимает (версия 1.1 против 0.1)
 
-Замерено на ПК автора (Windows 11, i9-9900K 16 потоков, 4K, GTX 1080 Ti), настоящий exe, обновление раз в секунду,
-после 45 секунд работы (`tools/measure.ps1` воспроизводит замер):
+Замерено на ПК автора (Windows 11, i9-9900K 16 потоков, 4K, GTX 1080 Ti), обе версии подряд в одинаковых условиях:
+обновление раз в секунду, оверлей на экране, по 60 секунд после запуска (`tools/measure.ps1`), процессор и память это среднее
+двух кругов замеров (между кругами процессор менялся до 0,7 процентного пункта, так что точные доли не обещаем), время одного обновления
+по `tools/bench_tick.exe` (медиана 150 обновлений). В версии 1.1 включён экспорт метрик в кольцо Corundum.
 
-| Скин | Рабочий набор | Приватный рабочий набор (колонка «Память» в Диспетчере задач) | Процессор |
+| Скин | Одно обновление | Процессор (% одного ядра) | Рабочий набор |
 |---|---|---|---|
-| `glass` | 5,2 МБ | 2,2 МБ | 1,2% одного ядра (0,08% всего процессора) |
-| `aurora` (картинка, графики, 43 виджета) | 7,7 МБ | 3,2 МБ | 1,35% одного ядра |
+| `glass` | 8,1 → **1,3 мс** | 1,38% → **0,66%** (-52%) | 4,9 → **4,4 МБ** |
+| `minimal` | 7,3 → **0,8 мс** | 1,29% → **0,63%** (-51%) | 3,9 → **2,85 МБ** |
+| `aurora` | 22,5 → **4,6 мс** | 2,57% → **1,07%** (-58%) | 7,65 → **6,15 МБ** |
 
-Сам exe весит 404 КБ. Он резервирует около 18 МБ адресного пространства (в основном не занятого физически), это то, что показывает «Private bytes».
-Пока оверлей скрыт, программа опрашивает данные раз в 3 секунды и возвращает память системе.
+Откуда ускорение:
+- **Опрос по требованию.** Программа смотрит, какие метрики читает скин, и не делает ненужных запросов к системе:
+  снимок процессов (~3 мс) и мощность видеокарты NVIDIA (~4 мс) запрашиваются, только если их где-то показывают.
+- **Сеть.** Список адаптеров обновляется раз в 10 секунд, на каждом шаге читаются только счётчики физических адаптеров (0,12 мс вместо 1 мс).
+- **Фон скина** (заливка, картинка, рамка) рисуется один раз и дальше копируется: `aurora` рисуется за 0,9 мс вместо 13 мс.
 
-## Честные ограничения (версия 0.1)
+Процессор считается для всего процесса, включая вывод окна системой, поэтому он падает меньше, чем время самого обновления.
+Сам exe весит около 420 КБ. Пока оверлей скрыт, программа опрашивает данные раз в 3 секунды и возвращает память системе.
+
+## Кольцо метрик для других программ (новое в 1.1)
+
+Каждое обновление публикуется в кольцевой буфер [Corundum HFT](https://github.com/SemyonZamiakin/CorundumHFT) в общей памяти.
+Программа на этом же ПК получает данные без сокетов, без разбора JSON и без системного вызова на каждое обновление
+(передача одного сообщения через Corundum на этом ПК занимает около 74 нс против 6,7 мкс через pipe).
+Так [Euclase Light](https://github.com/SemyonZamiakin/EuclaseLight) 1.1 меняет цвет подсветки по нагрузке.
+Включено по умолчанию, видно только программам вашего сеанса Windows. Формат и пример: [docs/EXPORT.md](docs/EXPORT.md#shared-memory-ring-for-local-programs-new-in-11).
+
+## Честные ограничения (версия 1.1)
 
 - **Температуры процессора нет.** В Windows нет пользовательского API для неё на большинстве ПК, нужен драйвер ядра (например, PawnIO). Это в планах как опциональная функция, пока метрика `cpu.temp` равна `n/a`.
 - **Метрики видеокарты только для NVIDIA** (через NVML из драйвера). AMD и Intel пока не поддерживаются.
@@ -156,20 +174,38 @@ check the SHA-256 on the release page, or build it yourself (below).
 Change the background by swapping one picture or one colour. Everything else (positions, fonts, which numbers, when
 things appear) is just as easy: see **[docs/CUSTOMIZE.md](docs/CUSTOMIZE.md)**.
 
-## Footprint
+## Footprint (version 1.1 vs 0.1)
 
-Measured on the author's PC (Windows 11, i9-9900K 16 threads, 4K, GTX 1080 Ti), real exe, refresh once per second,
-after 45 seconds of running (`tools/measure.ps1` reproduces it):
+Measured on the author's PC (Windows 11, i9-9900K 16 threads, 4K, GTX 1080 Ti), both versions back to back under the same
+conditions: refresh once per second, overlay on screen, 60 seconds after start (`tools/measure.ps1`); CPU and memory are the
+average of two measuring rounds (CPU moved by up to 0.7 percentage points between rounds, so treat the exact fractions as
+approximate); the time of one update
+from `tools/bench_tick.exe` (median of 150 updates). Version 1.1 had the Corundum metrics ring enabled.
 
-| Skin | Working set | Private working set (Task Manager "Memory") | CPU use |
+| Skin | One update | CPU (% of one core) | Working set |
 |---|---|---|---|
-| `glass` | 5.2 MB | 2.2 MB | 1.2% of one core (0.08% of the whole CPU) |
-| `aurora` (picture, graphs, 43 widgets) | 7.7 MB | 3.2 MB | 1.35% of one core |
+| `glass` | 8.1 → **1.3 ms** | 1.38% → **0.66%** (-52%) | 4.9 → **4.4 MB** |
+| `minimal` | 7.3 → **0.8 ms** | 1.29% → **0.63%** (-51%) | 3.9 → **2.85 MB** |
+| `aurora` | 22.5 → **4.6 ms** | 2.57% → **1.07%** (-58%) | 7.65 → **6.15 MB** |
 
-The exe is 404 KB. It reserves about 18 MB of address space (committed, mostly not resident), which is what "Private bytes" shows.
-While the overlay is hidden it samples every 3 s and hands its memory back to Windows.
+Where the speed-up comes from:
+- **Sampling on demand.** The app looks at which metrics the skin reads and skips the OS queries nobody needs: the
+  process snapshot (~3 ms) and the NVIDIA power reading (~4 ms) run only if something shows them.
+- **Network.** The adapter list is refreshed every 10 s; each tick reads only the counters of physical adapters (0.12 ms instead of 1 ms).
+- **Skin background** (fill, picture, border) is drawn once and then copied: `aurora` draws in 0.9 ms instead of 13 ms.
 
-## Honest limits (v0.1)
+CPU is measured for the whole process, including Windows composing the overlay, so it drops less than the update time itself.
+The exe is about 420 KB. While the overlay is hidden it samples every 3 s and hands its memory back to Windows.
+
+## Metrics ring for other programs (new in 1.1)
+
+Every update is published on a [Corundum HFT](https://github.com/SemyonZamiakin/CorundumHFT) shared-memory ring. A program on
+the same PC gets the numbers without sockets, without parsing JSON and without a system call per update (one message through
+Corundum takes about 74 ns on this PC, a pipe 6.7 µs). This is how [Euclase Light](https://github.com/SemyonZamiakin/EuclaseLight)
+1.1 drives RGB lighting by system load. On by default, visible only to programs in your Windows session.
+Format and example: [docs/EXPORT.md](docs/EXPORT.md#shared-memory-ring-for-local-programs-new-in-11).
+
+## Honest limits (v1.1)
 
 - **CPU temperature is not shown.** Windows has no user-mode API for it on most PCs; reading it needs a kernel driver (e.g. PawnIO). It is on the roadmap as an opt-in; the metric `cpu.temp` is `n/a` for now.
 - **GPU metrics: NVIDIA only** (through the driver's NVML). AMD / Intel GPUs: not yet.

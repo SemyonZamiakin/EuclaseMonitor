@@ -1,5 +1,5 @@
 # Builds, tests and packs dist\EuclaseMonitor-<version>.zip (exe + skins + docs). No installer: unzip and run.
-param([string]$Version = '0.1.0')
+param([string]$Version = '1.1.0')
 $ErrorActionPreference = 'Stop'
 Set-Location $PSScriptRoot
 Get-Process EuclaseMonitor -ErrorAction SilentlyContinue | Stop-Process -Force

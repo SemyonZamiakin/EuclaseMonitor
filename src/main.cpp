@@ -6,6 +6,8 @@
 #include "export_filter.h"
 #include "json.h"
 #include "render.h"
+#include "ring_export.h"
+#include "../include/euclase/metrics_wire.h"
 #include "samplers.h"
 #include "skin.h"
 #include "util.h"
@@ -36,6 +38,7 @@ struct Settings {
     std::string hotkey = "ctrl+alt+f10";
     bool exportOn = false, exportLan = false;
     int exportPort = 8099;
+    bool ringOn = true;                          // publish metrics on the Corundum ring (local programs only)
     std::map<std::string, std::pair<int, int>> pos;   // skin id -> absolute screen position (after the user dragged it)
 
     static std::wstring path() { return joinPath(appDataDir(), L"settings.json"); }
@@ -47,6 +50,7 @@ struct Settings {
             exportOn = e->boolean("enabled", false); exportLan = e->boolean("lan", false); exportPort = (int)e->num("port", 8099);
             if (exportPort < 1024 || exportPort > 65535) exportPort = 8099;
         }
+        if (const Json* r = j.find("ring")) if (r->isObj()) ringOn = r->boolean("enabled", true);
         if (const Json* c = j.find("clickThrough")) if (c->type == Json::Bool) clickThrough = c->b ? 1 : 0;
         if (const Json* p = j.find("positions")) if (p->isObj()) for (auto& kv : p->o)
             if (kv.second.isArr() && kv.second.a.size() == 2 && kv.second.a[0].isNum() && kv.second.a[1].isNum())
@@ -57,6 +61,7 @@ struct Settings {
                         ",\n  \"hotkey\": \"" + jsonEscape(hotkey) + "\"";
         if (clickThrough >= 0) o += std::string(",\n  \"clickThrough\": ") + (clickThrough ? "true" : "false");
         o += std::string(",\n  \"export\": { \"enabled\": ") + (exportOn ? "true" : "false") + ", \"port\": " + std::to_string(exportPort) + ", \"lan\": " + (exportLan ? "true" : "false") + " }";
+        o += std::string(",\n  \"ring\": { \"enabled\": ") + (ringOn ? "true" : "false") + " }";
         o += ",\n  \"positions\": {";
         bool first = true;
         for (auto& kv : pos) { o += std::string(first ? "\n" : ",\n") + "    \"" + jsonEscape(kv.first) + "\": [" + std::to_string(kv.second.first) + ", " + std::to_string(kv.second.second) + "]"; first = false; }
@@ -267,6 +272,7 @@ struct App {
     Metrics metrics;
     Watcher watcher;
     Exporter exporter;
+    RingExport ring;
     HDC memDC = nullptr; HBITMAP dib = nullptr; void* bits = nullptr; int dibW = 0, dibH = 0;
     NOTIFYICONDATAW nid{};
     HICON icon = nullptr;
@@ -419,6 +425,7 @@ struct App {
             }
         }
         updateSkinState(skin, metrics);
+        updateDemand();
         applyClickThrough(cfg.clickThrough >= 0 ? cfg.clickThrough == 1 : skin.clickThrough);
         watcher.start(ref->dir, ctrl);
         resetTimer();
@@ -449,6 +456,21 @@ struct App {
     }
 
     // ---------------- sampling
+    // Tell the samplers which metrics are read, so they skip the expensive OS queries nobody needs.
+    void updateDemand() {
+        Demand d;
+        d.all = cfg.exportOn;   // the HTTP export serves every metric on request
+        if (!d.all) {
+            std::vector<std::string> names;
+            if (haveSkin) collectMetricNames(skin, names);
+            for (const char* n : {"cpu.load", "gpu.load", "ram.used_pct"}) names.push_back(n);   // tray tooltip
+            if (ring.running())   // core set for ring readers such as Euclase Light (all cheap to read)
+                for (const char* n : {"cpu.load", "cpu.clock", "ram.used_pct", "ram.used_gb", "gpu.load", "gpu.temp", "gpu.vram_used_pct",
+                                      "net.down", "net.up"}) names.push_back(n);
+            d.names.insert(names.begin(), names.end());
+        }
+        for (auto& s : samplers) s->setDemand(d);
+    }
     void resetTimer() {
         int ms = haveSkin ? skin.updateMs : 1000;
         if (!shown) ms = std::max(ms, 3000);
@@ -466,6 +488,7 @@ struct App {
         }
         if (haveSkin) updateSkinState(skin, metrics);
         exporter.update(metrics);
+        ring.publish(metrics);
         if (shown) present(false);
         char tip[128];
         snprintf(tip, sizeof tip, "Euclase Monitor  CPU %.0f%%  GPU %.0f%%  RAM %.0f%%", metrics.get("cpu.load"), metrics.get("gpu.load"), metrics.get("ram.used_pct"));
@@ -619,6 +642,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE, PWSTR, int) {
     app.shown = app.cfg.visible;
     app.registerHotkey();
     if (app.cfg.exportOn) app.exporter.start(app.cfg.exportPort, app.cfg.exportLan);
+    if (app.cfg.ringOn) app.ring.start(EMS_RING_NAME, 256 * 1024);
 
     app.tick();                       // first sample primes the deltas
     if (!app.loadSkinById(app.cfg.skin, true)) logLine("no skin could be loaded");
@@ -631,6 +655,7 @@ int WINAPI wWinMain(HINSTANCE inst, HINSTANCE, PWSTR, int) {
     while (GetMessageW(&msg, nullptr, 0, 0) > 0) { TranslateMessage(&msg); DispatchMessageW(&msg); }
 
     app.cfg.save();
+    app.ring.stop();
     if (app.dib) DeleteObject(app.dib);
     DeleteDC(app.memDC);
     app.renderer.reset();

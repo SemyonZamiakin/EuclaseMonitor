@@ -28,8 +28,20 @@ One small native Windows program (C++17, Win32 + GDI+, no runtime to install). A
 - The overlay redraws only on a metrics tick (once per second by default), never per frame.
 - While hidden the app samples every 3 s, skips rendering and returns its memory pages to Windows.
 - Graph history is a bounded array per widget; the process list buffer is reused between samples.
+- **Sampling on demand (1.1).** At skin load the app collects every metric name the skin reads (texts, values,
+  visibility conditions) and tells the samplers. Queries nobody needs are skipped: the process snapshot (~3 ms),
+  the NVIDIA power reading (~4 ms), other NVML calls (0.3-0.4 ms each). The tray tooltip and the metrics ring add a
+  small fixed set; the HTTP export, when enabled, turns everything back on.
+- **Network counters (1.1).** The adapter list (`GetIfTable2`, ~0.9 ms) is refreshed every 10 s; each tick reads only
+  the counters of the physical, connected adapters (`GetIfEntry2`, ~0.07 ms each).
+- **Cached background (1.1).** The skin background (fill, gradient, scaled picture, border) is rendered once per
+  skin/size/scale and copied into each frame. For `aurora` this cut the draw from 13 ms to 0.9 ms.
+- **Metrics ring (1.1).** Each snapshot is encoded straight into a Corundum shared-memory ring (no intermediate
+  buffer, no system call unless a reader is asleep), see [EXPORT.md](EXPORT.md#shared-memory-ring-for-local-programs-new-in-11).
 
-Measured numbers are in the [README](../README.md#footprint).
+`tools/bench_tick.exe <skin folder> [ticks] [scale] [--all]` times every stage of a tick; `--all` reproduces what 0.1.0 did.
+
+Measured numbers are in the [README](../README.md#footprint-version-11-vs-01).
 
 ## Safety decisions
 
@@ -43,8 +55,9 @@ Measured numbers are in the [README](../README.md#footprint).
 | Test | What it proves |
 |---|---|
 | `tests/test_core.cpp` | JSON parser (errors, bombs), expressions, formats, templates, export filter |
-| `tests/test_samplers.cpp` | Real samplers on this PC give plausible numbers; the process struct layout matches the OS |
-| `tests/test_skin.cpp` | Loader behaviour on broken skins; the three bundled skins render without warnings |
+| `tests/test_samplers.cpp` | Real samplers on this PC give plausible numbers; the process struct layout matches the OS; samplers skip what is not demanded and resume when it is |
+| `tests/test_skin.cpp` | Loader behaviour on broken skins; the three bundled skins render without warnings; a frame drawn with the cached background is byte-identical to one drawn from scratch; metric-name collection |
+| `tests/test_ring.cpp` | The EMS1 snapshot format round-trips and rejects truncated data; a Corundum reader receives what the app publishes; a reader that never reads makes the writer drop, not block |
 | `tests/test_docs.cpp` | Every example in `docs/CUSTOMIZE.md` loads without warnings |
 | `tests/e2e_hotreload.ps1` | The real exe: hot reload, rejected broken skin, recovery, debounce |
 | `tests/e2e_export.ps1` | The real exe: HTTP endpoints, error codes, garbage clients, loopback-only |

@@ -1,6 +1,6 @@
 # Starts the app, lets it run, and reports real resource use (so the "5 MB" claim is a measurement, not a promise).
 param([string]$Exe = "$PSScriptRoot\..\build\EuclaseMonitor.exe", [int]$Seconds = 40, [string]$Skin = 'glass')
-Get-Process EuclaseMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
+# Measures only the instance it starts (another running copy is left alone).
 $p = Start-Process $Exe -ArgumentList '--skin', $Skin -PassThru
 Start-Sleep 8
 $p.Refresh()
@@ -21,3 +21,4 @@ $counter = Get-CimInstance Win32_PerfFormattedData_PerfProc_Process -Filter "IDP
     Threads               = $p.Threads.Count
     Handles               = $p.HandleCount
 } | Format-List
+if (-not $p.HasExited) { $p.Kill() }   # stop only the instance started here

@@ -9,7 +9,7 @@ $fail = 0
 function Check($name, $ok) { if ($ok) { Write-Host "  ok   $name" } else { Write-Host "  FAIL $name"; $script:fail++ } }
 function LogSince($mark) { if (Test-Path $log) { (Get-Content $log -Raw) } else { '' } }
 
-Get-Process EuclaseMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
+if (Get-Process EuclaseMonitor -ErrorAction SilentlyContinue) { throw "Close Euclase Monitor first: this test starts its own instance and never stops yours" }
 Remove-Item $dir -Recurse -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Force $dir | Out-Null
 Copy-Item "$root\skins\minimal\skin.json" "$dir\skin.json"

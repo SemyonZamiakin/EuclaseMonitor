@@ -96,6 +96,9 @@ bool loadSkin(const std::wstring& dir, Skin& out, std::string& fatalError);
 // Evaluates graph inputs and pushes them into the widgets' history buffers. Call once per metrics update.
 void updateSkinState(Skin& s, const Metrics& m);
 
+// Every metric name the skin reads (texts, values, visibility conditions).
+void collectMetricNames(const Skin& s, std::vector<std::string>& out);
+
 // Pure helpers (also used by tests).
 bool parseColor(const std::string& text, const std::map<std::string, std::string>& vars, Color& out);
 Color pickThreshold(const Widget& w, double v);

@@ -109,17 +109,36 @@ public:
 class NetSampler : public Sampler {
 public:
     const char* name() const override { return "network"; }
+    void setDemand(const Demand& d) override { on_ = d.wantPrefix("net."); }
     void sample(Metrics& m, double dt) override {
-        MIB_IF_TABLE2* t = nullptr;
-        if (GetIfTable2(&t) != NO_ERROR || !t) return;
+        if (!on_) { have_ = false; return; }   // nobody reads net.*: skip the queries; restart deltas when needed again
+        // The full interface table costs ~0.9 ms; one interface's counters ~0.07 ms. So the list of physical,
+        // connected adapters is refreshed every 10 s and only their counters are read on every tick.
+        const ULONGLONG nowMs = GetTickCount64();
+        if (luids_.empty() || nowMs - listedAt_ >= 10000) {
+            std::vector<NET_LUID> fresh;
+            MIB_IF_TABLE2* t = nullptr;
+            if (GetIfTable2(&t) != NO_ERROR || !t) return;
+            for (ULONG i = 0; i < t->NumEntries; ++i) {
+                const MIB_IF_ROW2& r = t->Table[i];
+                if (r.OperStatus != IfOperStatusUp || r.Type == IF_TYPE_SOFTWARE_LOOPBACK) continue;
+                if (!r.InterfaceAndOperStatusFlags.HardwareInterface) continue;  // skip VPN/virtual adapters (their bytes are already counted on the real NIC)
+                fresh.push_back(r.InterfaceLuid);
+            }
+            FreeMibTable(t);
+            bool same = fresh.size() == luids_.size();
+            for (size_t i = 0; same && i < fresh.size(); ++i) same = fresh[i].Value == luids_[i].Value;
+            if (!same) have_ = false;   // adapters changed: the byte sums are not comparable with the last tick
+            luids_.swap(fresh);
+            listedAt_ = nowMs;
+        }
         unsigned long long in = 0, out = 0;
-        for (ULONG i = 0; i < t->NumEntries; ++i) {
-            const MIB_IF_ROW2& r = t->Table[i];
-            if (r.OperStatus != IfOperStatusUp || r.Type == IF_TYPE_SOFTWARE_LOOPBACK) continue;
-            if (!r.InterfaceAndOperStatusFlags.HardwareInterface) continue;  // skip VPN/virtual adapters (their bytes are already counted on the real NIC)
+        for (const NET_LUID& l : luids_) {
+            MIB_IF_ROW2 r{};
+            r.InterfaceLuid = l;
+            if (GetIfEntry2(&r) != NO_ERROR) { listedAt_ = 0; have_ = false; continue; }   // adapter gone: re-list next tick
             in += r.InOctets; out += r.OutOctets;
         }
-        FreeMibTable(t);
         if (have_ && dt > 0 && in >= pin_ && out >= pout_) {
             m.set("net.down", (double)(in - pin_) / dt);
             m.set("net.up", (double)(out - pout_) / dt);
@@ -132,7 +151,9 @@ public:
     }
 private:
     unsigned long long pin_ = 0, pout_ = 0;
-    bool have_ = false;
+    bool have_ = false, on_ = true;
+    std::vector<NET_LUID> luids_;
+    ULONGLONG listedAt_ = 0;
 };
 
 // ---------------------------------------------------------------- disks (free space only, cheap)
@@ -193,6 +214,7 @@ class NvmlSampler : public Sampler {
     Shutdown shutdown_ = nullptr;
     std::vector<void*> dev_;
     std::vector<std::string> names_;
+    bool wLoad_ = true, wTemp_ = true, wClock_ = true, wMemClock_ = true, wMem_ = true, wPower_ = true, wFan_ = true;
 
 public:
     NvmlSampler() {
@@ -223,25 +245,33 @@ public:
     bool available() const { return !dev_.empty(); }
     const char* name() const override { return "gpu-nvml"; }
 
+    void setDemand(const Demand& d) override {
+        wLoad_ = d.wantGpu("load"); wTemp_ = d.wantGpu("temp"); wClock_ = d.wantGpu("clock"); wMemClock_ = d.wantGpu("mem_clock");
+        wMem_ = d.wantGpu("vram_used_gb") || d.wantGpu("vram_total_gb") || d.wantGpu("vram_used_pct");
+        wPower_ = d.wantGpu("power_w"); wFan_ = d.wantGpu("fan_pct");
+    }
     void sample(Metrics& m, double) override {
+        // Each NVML call costs 0.3-0.4 ms, the power reading ~4 ms: only ask for what is read somewhere.
         for (size_t i = 0; i < dev_.size(); ++i) {
             std::string p = "gpu" + std::to_string(i) + ".";
             auto put = [&](const std::string& k, double v) { m.set(p + k, v); if (i == 0) m.set("gpu." + k, v); };
             m.setStr(p + "name", names_[i]);
             if (i == 0) m.setStr("gpu.name", names_[i]);
             Util u{};
-            put("load", util_(dev_[i], &u) == 0 ? (double)u.gpu : NAN);
             unsigned v = 0;
-            put("temp", temp_ && temp_(dev_[i], 0, &v) == 0 ? (double)v : NAN);
-            put("clock", clock_ && clock_(dev_[i], 0, &v) == 0 ? (double)v : NAN);       // graphics MHz
-            put("mem_clock", clock_ && clock_(dev_[i], 2, &v) == 0 ? (double)v : NAN);
-            Mem mi{};
-            bool okm = mem_ && mem_(dev_[i], &mi) == 0;
-            put("vram_used_gb", okm ? mi.used / 1073741824.0 : NAN);
-            put("vram_total_gb", okm ? mi.total / 1073741824.0 : NAN);
-            put("vram_used_pct", okm && mi.total ? 100.0 * (double)mi.used / (double)mi.total : NAN);
-            put("power_w", power_ && power_(dev_[i], &v) == 0 ? v / 1000.0 : NAN);
-            put("fan_pct", fan_ && fan_(dev_[i], &v) == 0 ? (double)v : NAN);
+            if (wLoad_) put("load", util_(dev_[i], &u) == 0 ? (double)u.gpu : NAN);
+            if (wTemp_) put("temp", temp_ && temp_(dev_[i], 0, &v) == 0 ? (double)v : NAN);
+            if (wClock_) put("clock", clock_ && clock_(dev_[i], 0, &v) == 0 ? (double)v : NAN);       // graphics MHz
+            if (wMemClock_) put("mem_clock", clock_ && clock_(dev_[i], 2, &v) == 0 ? (double)v : NAN);
+            if (wMem_) {
+                Mem mi{};
+                bool okm = mem_ && mem_(dev_[i], &mi) == 0;
+                put("vram_used_gb", okm ? mi.used / 1073741824.0 : NAN);
+                put("vram_total_gb", okm ? mi.total / 1073741824.0 : NAN);
+                put("vram_used_pct", okm && mi.total ? 100.0 * (double)mi.used / (double)mi.total : NAN);
+            }
+            if (wPower_) put("power_w", power_ && power_(dev_[i], &v) == 0 ? v / 1000.0 : NAN);
+            if (wFan_) put("fan_pct", fan_ && fan_(dev_[i], &v) == 0 ? (double)v : NAN);
         }
         m.set("gpu.count", (double)dev_.size());
     }
@@ -276,7 +306,9 @@ class ProcSampler : public Sampler {
 public:
     const char* name() const override { return "processes"; }
     double intervalSec() const override { return 2; }
+    void setDemand(const Demand& d) override { on_ = d.wantPrefix("proc."); }
     void sample(Metrics& m, double dt) override {
+        if (!on_) { prev_.clear(); return; }   // no skin shows programs: skip the process snapshot (~3 ms)
         std::vector<ProcSnapshotEntry> list;
         if (!readProcessList(list)) return;
         SYSTEM_INFO si; GetSystemInfo(&si);
@@ -312,6 +344,7 @@ public:
     }
 private:
     static const int kTop = 8;
+    bool on_ = true;
     std::unordered_map<unsigned long long, unsigned long long> prev_;
 };
 

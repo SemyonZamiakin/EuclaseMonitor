@@ -88,3 +88,51 @@ void loop() {
     screen->update();   // EuclaseUI sends only the rectangles that changed
 }
 ```
+
+## Shared-memory ring for local programs (new in 1.1)
+
+For programs on the **same PC** there is a faster path than HTTP: every metrics update is published on a
+[Corundum HFT](https://github.com/SemyonZamiakin/CorundumHFT) ring in shared memory. A reader gets each snapshot without
+a socket, without parsing JSON and without a single system call per update. [Euclase Light](https://github.com/SemyonZamiakin/EuclaseLight)
+1.1 uses it for its "colour follows system load" mode.
+
+It is **on by default** and visible only to programs of your own Windows session. To turn it off:
+
+```json
+{
+  "ring": { "enabled": false }
+}
+```
+
+| Item | Value |
+|---|---|
+| Ring name | `/euclase-monitor` (Windows object `Local\corundum.euclase-monitor`), 256 KiB |
+| Record | one per update, Corundum record type `1`, wire format EMS1 |
+| Format | [`include/euclase/metrics_wire.h`](../include/euclase/metrics_wire.h): header-only C/C++ decoder, bounds-checked |
+| If nobody reads | the ring fills up and new snapshots are dropped; Monitor never waits for a reader |
+| Which metrics | whatever Monitor samples: the metrics your skin uses, plus a core set that is always included (`cpu.load`, `cpu.clock`, `ram.used_pct`, `ram.used_gb`, `gpu.load`, `gpu.temp`, `gpu.vram_used_pct`, `net.down`, `net.up`). With the HTTP export on, every metric is sampled |
+
+Reading it from C or C++ (link Corundum: [third_party/corundum](../third_party/corundum)):
+
+```c
+#include "corundum.h"
+#include "euclase/metrics_wire.h"
+
+crd_reader r;
+if (crd_reader_open(&r, EMS_RING_NAME, 0) == CRD_OK) {
+    while (crd_wait(&r, 2000000000) == CRD_OK) {        /* sleeps until Monitor publishes */
+        crd_msg m;
+        while (crd_read(&r, &m) == CRD_OK) {
+            ems_header h; ems_iter it; ems_entry e;
+            if (!ems_begin(m.data, m.size, &h, &it)) continue;
+            while (ems_next(&it, &e))
+                if (e.kind == EMS_KIND_NUMBER && ems_is(&e, "cpu.load")) printf("CPU %.1f%%\n", e.number);
+        }
+        crd_release(&r);
+    }
+    crd_reader_close(&r);
+}
+```
+
+Only one reader can be attached at a time (Corundum is single-producer / single-consumer). If you need several readers,
+use the HTTP export for the others.

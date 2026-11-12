@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <cmath>
 #include <cstdio>
+#include <vector>
 
 static int g_run = 0, g_fail = 0;
 #define CHECK(c) do { ++g_run; if (!(c)) { ++g_fail; printf("FAIL %s:%d  %s\n", __FILE__, __LINE__, #c); } } while (0)
@@ -92,6 +93,40 @@ int main() {
         CHECK(r.drawToPng(png, b, full, 1.5f));
         std::string bytes; CHECK(readFile(png, bytes) && bytes.size() > 800);
     }
+    // background cache: a cached frame must be byte-identical to a frame drawn from scratch
+    for (const wchar_t* name : {L"glass", L"aurora"}) {
+        std::wstring dir = joinPath(exeDir(), std::wstring(L"..\\skins\\") + name);
+        Skin b; std::string e2;
+        CHECK(loadSkin(dir, b, e2));
+        const int w = (int)(b.width * 1.25f + 0.999f), h = (int)(b.height * 1.25f + 0.999f);
+        std::vector<unsigned char> a((size_t)w * h * 4, 0x11), c((size_t)w * h * 4, 0x22), fresh((size_t)w * h * 4, 0x33);
+        Renderer r1;
+        r1.draw(a.data(), w, h, b, full, 1.25f);        // fills the cache
+        r1.draw(c.data(), w, h, b, full, 1.25f);        // uses it
+        Renderer r2;
+        r2.draw(fresh.data(), w, h, b, full, 1.25f);    // independent renderer, no cache
+        CHECK(a == fresh);
+        CHECK(c == fresh);
+        r1.clearCaches();                                // a skin reload must invalidate it
+        b.bgColor = Color{200, 10, 10, 255}; b.bgImage.clear(); b.bgGradient = false;
+        r1.draw(c.data(), w, h, b, full, 1.25f);
+        r2.clearCaches();
+        r2.draw(fresh.data(), w, h, b, full, 1.25f);
+        CHECK(c == fresh && c != a);
+    }
+
+    // metric names a skin reads (drives which OS queries run)
+    {
+        Skin t; std::string e3;
+        CHECK(load("{ \"widgets\": [ {\"type\":\"text\",\"text\":\"{cpu.load:0}% {net.down:rate}\",\"visible\":\"gpu.temp > 0\"},"
+                   " {\"type\":\"bar\",\"value\":\"max(ram.used_pct, 0)\",\"w\":10,\"h\":4} ] }", t, e3));
+        std::vector<std::string> names;
+        collectMetricNames(t, names);
+        auto has = [&](const char* n) { for (auto& x : names) if (x == n) return true; return false; };
+        CHECK(has("cpu.load") && has("net.down") && has("gpu.temp") && has("ram.used_pct"));
+        CHECK(!has("max") && !has("proc.cpu1.name"));
+    }
+
     // images must stay inside the skin folder (no ..\ escapes from downloaded skins)
     Skin evil; std::wstring d = tmpDir();
     writeFileAtomic(joinPath(d, L"skin.json"), "{ \"widgets\": [ {\"type\":\"image\",\"file\":\"..\\\\..\\\\Windows\\\\win.ini\",\"w\":10,\"h\":10} ] }");

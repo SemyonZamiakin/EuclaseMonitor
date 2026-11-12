@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $root = Split-Path $PSScriptRoot
 $cfgPath = "$env:APPDATA\EuclaseMonitor\settings.json"
 $backup = if (Test-Path $cfgPath) { Get-Content $cfgPath -Raw } else { $null }
-Get-Process EuclaseMonitor -ErrorAction SilentlyContinue | Stop-Process -Force
+if (Get-Process EuclaseMonitor -ErrorAction SilentlyContinue) { throw "Close Euclase Monitor first: this test starts its own instance and never stops yours" }
 Start-Sleep 1
 Set-Content $cfgPath '{ "skin": "minimal", "visible": false, "export": { "enabled": true, "port": 18098, "lan": false } }' -Encoding UTF8
 $p = Start-Process "$root\build\EuclaseMonitor.exe" -PassThru

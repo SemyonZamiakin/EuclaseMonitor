@@ -269,4 +269,12 @@ void updateSkinState(Skin& s, const Metrics& m) {
     }
 }
 
+void collectMetricNames(const Skin& s, std::vector<std::string>& out) {
+    for (const Widget& w : s.widgets) {
+        if (w.hasVisible) w.visible.collectNames(out);
+        w.text.collectNames(out);
+        if (w.value.valid()) w.value.collectNames(out);
+    }
+}
+
 }  // namespace qm

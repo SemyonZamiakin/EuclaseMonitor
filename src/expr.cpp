@@ -198,6 +198,10 @@ std::string formatNumber(double v, const std::string& fmt) {
     return fixed(v, 0);
 }
 
+void Expr::collectNames(std::vector<std::string>& out) const {
+    for (const Node& n : nodes_) if (n.op == N_VAR) out.push_back(n.name);
+}
+
 // ---------------- text templates ----------------
 static bool isBareName(const std::string& s) {
     if (s.empty() || !(isalpha((unsigned char)s[0]) || s[0] == '_')) return false;
@@ -229,6 +233,10 @@ bool Template::parse(const std::string& text, std::string& err) {
     }
     if (!lit.empty()) { Seg s; s.lit = lit; segs_.push_back(std::move(s)); }
     return true;
+}
+
+void Template::collectNames(std::vector<std::string>& out) const {
+    for (const Seg& s : segs_) if (s.isExpr) s.expr.collectNames(out);
 }
 
 std::string Template::render(const Metrics& m) const {
